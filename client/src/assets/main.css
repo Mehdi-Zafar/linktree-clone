@@ -1,0 +1,56 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
+@import 'tailwindcss';
+@import 'vue-sonner/style.css';
+
+/* @media (prefers-color-scheme: dark) {
+  :root {
+    color-scheme: dark;
+  }
+} */
+
+@theme {
+  --color-bodyLight: #fcf9ea;
+  --color-bodyDark: #0f172b;
+  --color-darkText: #333;
+  --color-lightText: #f2f2f2;
+  --color-navbarLight: #f9f3d4;
+  --color-navbarDark: #1d293d;
+}
+
+* {
+  font-family: 'Poppins', sans-serif;
+}
+
+body {
+  @apply bg-bodyLight dark:bg-bodyDark text-darkText dark:text-lightText;
+}
+
+@variant dark (&:where(.dark, .dark *));
+
+.inputClass {
+  @apply block w-full rounded-md px-3 py-1.5 text-base bg-white dark:bg-gray-900 text-gray-900 dark:text-white border border-gray-300 dark:border-gray-700 placeholder:text-gray-400 dark:placeholder:text-gray-500 outline-none focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400 focus:border-transparent sm:text-sm/6;
+}
+
+.inputLabel {
+  @apply block text-sm/6 font-medium text-darkText dark:text-lightText opacity-80;
+}
+
+.inputIcon {
+  @apply absolute w-5 top-1/2 left-3 -translate-y-1/2 opacity-70 text-darkText dark:text-lightText;
+}
+
+.link {
+  @apply font-semibold text-emerald-600 opacity-70;
+}
+
+.mutedText {
+  @apply text-zinc-400;
+}
+
+.my-toast {
+  @apply bg-emerald-500;
+}
+
+.my-toast-description {
+  @apply text-lightText;
+}
