@@ -1,10 +1,10 @@
 <template>
-  <div class="min-h-screen bg-gradient-to-br from-emerald-50 to-white">
+  <div class="min-h-screen">
     <!-- Hero Section -->
     <section class="py-16 md:py-24">
       <div class="container mx-auto px-4 sm:px-6 lg:px-8">
         <div class="text-center max-w-3xl mx-auto mb-12">
-          <h1 class="text-4xl sm:text-5xl lg:text-6xl font-bold mb-6" style="color: #333">
+          <h1 class="text-4xl sm:text-5xl lg:text-6xl font-bold mb-6 text-emerald-500">
             Simple, Transparent Pricing
           </h1>
           <p class="text-lg sm:text-xl text-gray-600 mb-8">
@@ -12,12 +12,13 @@
           </p>
 
           <!-- Billing Toggle -->
-          <div class="inline-flex items-center bg-white rounded-full p-1 shadow-lg">
+          <div
+            class="inline-flex items-center bg-white dark:bg-slate-800 rounded-full p-1 shadow-lg"
+          >
             <button
               @click="billingCycle = 'monthly'"
               :class="billingCycle === 'monthly' ? 'bg-emerald-500 text-white' : 'text-gray-600'"
               class="px-6 py-2 rounded-full font-semibold transition-all duration-300"
-              style="color: inherit"
             >
               Monthly
             </button>
@@ -25,7 +26,6 @@
               @click="billingCycle = 'yearly'"
               :class="billingCycle === 'yearly' ? 'bg-emerald-500 text-white' : 'text-gray-600'"
               class="px-6 py-2 rounded-full font-semibold transition-all duration-300"
-              style="color: inherit"
             >
               Yearly
               <span class="ml-2 text-xs bg-emerald-100 text-emerald-700 px-2 py-1 rounded-full"
@@ -39,13 +39,13 @@
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-7xl mx-auto">
           <!-- Free Plan -->
           <div
-            class="bg-white rounded-2xl shadow-lg p-8 hover:shadow-2xl transition-all duration-300 border-2 border-gray-100"
+            class="bg-white dark:bg-slate-800 rounded-2xl shadow-lg p-8 hover:shadow-2xl transition-all duration-300 border-2 border-gray-100 dark:border-gray-700"
           >
             <div class="text-center mb-8">
-              <h3 class="text-2xl font-bold mb-2" style="color: #333">Free</h3>
+              <h3 class="text-2xl font-bold mb-2">Free</h3>
               <p class="text-gray-600 mb-6">Perfect for getting started</p>
               <div class="mb-6">
-                <span class="text-5xl font-bold" style="color: #333">$0</span>
+                <span class="text-5xl font-bold">$0</span>
                 <span class="text-gray-600">/month</span>
               </div>
               <button
@@ -68,7 +68,7 @@
                     clip-rule="evenodd"
                   ></path>
                 </svg>
-                <span class="text-gray-600">Unlimited links</span>
+                <span class="text-gray-500">Unlimited links</span>
               </div>
               <div class="flex items-start">
                 <svg
@@ -82,7 +82,7 @@
                     clip-rule="evenodd"
                   ></path>
                 </svg>
-                <span class="text-gray-600">Basic analytics</span>
+                <span class="text-gray-500">Basic analytics</span>
               </div>
               <div class="flex items-start">
                 <svg
@@ -96,7 +96,7 @@
                     clip-rule="evenodd"
                   ></path>
                 </svg>
-                <span class="text-gray-600">5 themes</span>
+                <span class="text-gray-500">5 themes</span>
               </div>
               <div class="flex items-start">
                 <svg
@@ -110,14 +110,14 @@
                     clip-rule="evenodd"
                   ></path>
                 </svg>
-                <span class="text-gray-600">LinkTree branding</span>
+                <span class="text-gray-500">LinkTree branding</span>
               </div>
             </div>
           </div>
 
           <!-- Pro Plan (Most Popular) -->
           <div
-            class="bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-2xl shadow-2xl p-8 transform lg:scale-105 relative border-4 border-emerald-400"
+            class="bg-gradient-to-br from-emerald-500 to-emerald-600 dark:from-emerald-700 dark:to-emerald-800 rounded-2xl shadow-2xl p-8 transform lg:scale-105 relative border-4 border-emerald-400 dark:border-emerald-600"
           >
             <div
               class="absolute top-0 right-0 bg-yellow-400 text-yellow-900 px-4 py-1 rounded-bl-lg rounded-tr-lg font-bold text-sm"
@@ -161,20 +161,19 @@
 
           <!-- Enterprise Plan -->
           <div
-            class="bg-white rounded-2xl shadow-lg p-8 hover:shadow-2xl transition-all duration-300 border-2 border-gray-100"
+            class="bg-white dark:bg-slate-800 rounded-2xl shadow-lg p-8 hover:shadow-2xl transition-all duration-300 border-2 border-gray-100 dark:border-gray-700"
           >
             <div class="text-center mb-8">
-              <h3 class="text-2xl font-bold mb-2" style="color: #333">Enterprise</h3>
+              <h3 class="text-2xl font-bold mb-2">Enterprise</h3>
               <p class="text-gray-600 mb-6">For teams and businesses</p>
               <div class="mb-6">
-                <span class="text-5xl font-bold" style="color: #333">
+                <span class="text-5xl font-bold">
                   ${{ billingCycle === 'monthly' ? '49' : '40' }}
                 </span>
                 <span class="text-gray-600">/month</span>
               </div>
               <button
-                class="w-full bg-emerald-500 hover:bg-emerald-600 font-semibold px-6 py-3 rounded-lg transition-all duration-300 transform hover:scale-105 shadow-lg"
-                style="color: #f2f2f2"
+                class="w-full bg-emerald-500 hover:bg-emerald-600 text-lightText font-semibold px-6 py-3 rounded-lg transition-all duration-300 transform hover:scale-105 shadow-lg"
               >
                 Contact Sales
               </button>
@@ -193,7 +192,7 @@
                     clip-rule="evenodd"
                   ></path>
                 </svg>
-                <span class="text-gray-600">Everything in Pro, plus:</span>
+                <span class="text-gray-500">Everything in Pro, plus:</span>
               </div>
               <div class="flex items-start">
                 <svg
@@ -207,7 +206,7 @@
                     clip-rule="evenodd"
                   ></path>
                 </svg>
-                <span class="text-gray-600">Custom domain</span>
+                <span class="text-gray-500">Custom domain</span>
               </div>
               <div class="flex items-start">
                 <svg
@@ -221,7 +220,7 @@
                     clip-rule="evenodd"
                   ></path>
                 </svg>
-                <span class="text-gray-600">Team collaboration (5 users)</span>
+                <span class="text-gray-500">Team collaboration (5 users)</span>
               </div>
               <div class="flex items-start">
                 <svg
@@ -235,7 +234,7 @@
                     clip-rule="evenodd"
                   ></path>
                 </svg>
-                <span class="text-gray-600">Advanced integrations</span>
+                <span class="text-gray-500">Advanced integrations</span>
               </div>
               <div class="flex items-start">
                 <svg
@@ -249,7 +248,7 @@
                     clip-rule="evenodd"
                   ></path>
                 </svg>
-                <span class="text-gray-600">White-label solution</span>
+                <span class="text-gray-500">White-label solution</span>
               </div>
               <div class="flex items-start">
                 <svg
@@ -263,7 +262,7 @@
                     clip-rule="evenodd"
                   ></path>
                 </svg>
-                <span class="text-gray-600">Dedicated account manager</span>
+                <span class="text-gray-500">Dedicated account manager</span>
               </div>
               <div class="flex items-start">
                 <svg
@@ -277,7 +276,7 @@
                     clip-rule="evenodd"
                   ></path>
                 </svg>
-                <span class="text-gray-600">99.99% SLA uptime</span>
+                <span class="text-gray-500">99.99% SLA uptime</span>
               </div>
             </div>
           </div>
@@ -286,21 +285,21 @@
     </section>
 
     <!-- Features Comparison Table -->
-    <section class="py-16 md:py-20 bg-white">
+    <section class="py-16 md:py-20 bg-white dark:bg-slate-800">
       <div class="container mx-auto px-4 sm:px-6 lg:px-8">
         <div class="text-center mb-12">
-          <h2 class="text-3xl sm:text-4xl font-bold mb-4" style="color: #333">Compare Plans</h2>
-          <p class="text-lg text-gray-600">See what's included in each plan</p>
+          <h2 class="text-3xl sm:text-4xl font-bold mb-4 text-emerald-500">Compare Plans</h2>
+          <p class="text-lg text-gray-500">See what's included in each plan</p>
         </div>
 
         <div class="max-w-5xl mx-auto overflow-x-auto">
-          <table class="w-full bg-white rounded-2xl shadow-lg overflow-hidden">
-            <thead class="bg-emerald-500">
-              <tr>
-                <th class="px-6 py-4 text-left font-semibold" style="color: #f2f2f2">Features</th>
-                <th class="px-6 py-4 text-center font-semibold" style="color: #f2f2f2">Free</th>
-                <th class="px-6 py-4 text-center font-semibold" style="color: #f2f2f2">Pro</th>
-                <th class="px-6 py-4 text-center font-semibold" style="color: #f2f2f2">
+          <table class="w-full bg-white dark:bg-slate-800 rounded-2xl shadow-lg overflow-hidden">
+            <thead class="bg-emerald-500 dark:bg-emerald-700">
+              <tr class="text-lightText">
+                <th class="px-6 py-4 text-left font-semibold">Features</th>
+                <th class="px-6 py-4 text-center font-semibold">Free</th>
+                <th class="px-6 py-4 text-center font-semibold">Pro</th>
+                <th class="px-6 py-4 text-center font-semibold">
                   Enterprise
                 </th>
               </tr>
@@ -309,9 +308,9 @@
               <tr
                 v-for="(feature, index) in comparisonFeatures"
                 :key="index"
-                class="hover:bg-gray-50"
+                class="hover:bg-gray-50 hover:dark:bg-slate-900"
               >
-                <td class="px-6 py-4 font-medium" style="color: #333">{{ feature.name }}</td>
+                <td class="px-6 py-4 font-medium">{{ feature.name }}</td>
                 <td class="px-6 py-4 text-center">
                   <span v-if="feature.free === true" class="text-emerald-500">
                     <svg class="w-6 h-6 mx-auto" fill="currentColor" viewBox="0 0 20 20">
@@ -383,10 +382,10 @@
     </section>
 
     <!-- FAQ Section -->
-    <section class="py-16 md:py-20 bg-gradient-to-br from-emerald-50 to-white">
+    <section class="py-16 md:py-20 ">
       <div class="container mx-auto px-4 sm:px-6 lg:px-8 max-w-4xl">
         <div class="text-center mb-12">
-          <h2 class="text-3xl sm:text-4xl font-bold mb-4" style="color: #333">
+          <h2 class="text-3xl sm:text-4xl font-bold mb-4 text-emerald-500">
             Frequently Asked Questions
           </h2>
           <p class="text-lg text-gray-600">Everything you need to know about pricing</p>
@@ -396,13 +395,13 @@
           <div
             v-for="(faq, index) in faqs"
             :key="index"
-            class="bg-white border-2 border-gray-200 rounded-lg overflow-hidden"
+            class="bg-white dark:bg-slate-800 border-2 border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden"
           >
             <button
               @click="toggleFaq(index)"
-              class="w-full px-6 py-4 text-left flex items-center justify-between hover:bg-gray-50 transition-colors"
+              class="w-full px-6 py-4 text-left flex items-center justify-between hover:bg-gray-50 hover:dark:bg-slate-900 transition-colors"
             >
-              <span class="font-semibold text-lg" style="color: #333">{{ faq.question }}</span>
+              <span class="font-semibold text-lg">{{ faq.question }}</span>
               <svg
                 class="w-6 h-6 text-emerald-500 transform transition-transform"
                 :class="{ 'rotate-180': openFaq === index }"
@@ -418,8 +417,8 @@
                 ></path>
               </svg>
             </button>
-            <div v-show="openFaq === index" class="px-6 py-4 bg-gray-50 border-t border-gray-200">
-              <p class="text-gray-600">{{ faq.answer }}</p>
+            <div v-show="openFaq === index" class="px-6 py-4 bg-gray-50 dark:bg-slate-800 border-t border-gray-200 dark:border-gray-700">
+              <p class="text-gray-500">{{ faq.answer }}</p>
             </div>
           </div>
         </div>
@@ -427,10 +426,10 @@
     </section>
 
     <!-- Testimonials Section -->
-    <section class="py-16 md:py-20 bg-white">
+    <section class="py-16 md:py-20 bg-white dark:bg-slate-800">
       <div class="container mx-auto px-4 sm:px-6 lg:px-8">
         <div class="text-center mb-12">
-          <h2 class="text-3xl sm:text-4xl font-bold mb-4" style="color: #333">
+          <h2 class="text-3xl sm:text-4xl font-bold mb-4 text-emerald-500">
             Loved by Creators Worldwide
           </h2>
           <p class="text-lg text-gray-600">See what our users have to say</p>
@@ -440,7 +439,7 @@
           <div
             v-for="(testimonial, index) in testimonials"
             :key="index"
-            class="bg-gradient-to-br from-gray-50 to-white rounded-2xl p-8 shadow-lg hover:shadow-xl transition-all duration-300"
+            class="bg-gradient-to-br from-gray-50 to-white dark:from-slate-800 dark:to-slate-900 rounded-2xl p-8 shadow-lg hover:shadow-xl transition-all duration-300"
           >
             <div class="flex items-center mb-4">
               <div class="flex text-yellow-400">
@@ -457,7 +456,7 @@
                 </svg>
               </div>
             </div>
-            <p class="text-gray-600 mb-6 leading-relaxed">{{ testimonial.text }}</p>
+            <p class="text-gray-500 mb-6 leading-relaxed">{{ testimonial.text }}</p>
             <div class="flex items-center">
               <div
                 class="w-12 h-12 bg-emerald-200 rounded-full flex items-center justify-center mr-4"
@@ -465,7 +464,7 @@
                 <span class="text-emerald-700 font-bold text-lg">{{ testimonial.initial }}</span>
               </div>
               <div>
-                <p class="font-bold" style="color: #333">{{ testimonial.name }}</p>
+                <p class="font-bold">{{ testimonial.name }}</p>
                 <p class="text-sm text-gray-500">{{ testimonial.role }}</p>
               </div>
             </div>
@@ -475,7 +474,7 @@
     </section>
 
     <!-- CTA Section -->
-    <section class="py-16 md:py-24 bg-gradient-to-r from-emerald-400 to-emerald-600">
+    <section class="py-16 md:py-24 bg-gradient-to-r from-emerald-400 to-emerald-600 dark:from-emerald-700 dark:to-emerald-800">
       <div class="container mx-auto px-4 sm:px-6 lg:px-8 text-center">
         <h2 class="text-3xl sm:text-4xl lg:text-5xl font-bold mb-6" style="color: #f2f2f2">
           Ready to Level Up?
