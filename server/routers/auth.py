@@ -63,3 +63,30 @@ def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depend
 @router.get("/me", response_model=schemas.UserResponse)
 def read_users_me(current_user: models.User = Depends(get_current_active_user)):
     return current_user
+
+
+@router.get("/validate/email/{email}", response_model=schemas.EmailValidationResponse)
+def validate_email(email: str, db: Session = Depends(get_db)):
+    """
+    Check if an email is already registered.
+    Returns available: true if email is available, false if already taken.
+    """
+    db_user = db.query(models.User).filter(models.User.email == email).first()
+    return {
+        "email": email,
+        "available": db_user is None,
+        "message": "Email is available" if db_user is None else "Email already registered"
+    }
+
+@router.get("/validate/username/{username}", response_model=schemas.UsernameValidationResponse)
+def validate_username(username: str, db: Session = Depends(get_db)):
+    """
+    Check if a username is already taken.
+    Returns available: true if username is available, false if already taken.
+    """
+    db_user = db.query(models.User).filter(models.User.username == username).first()
+    return {
+        "username": username,
+        "available": db_user is None,
+        "message": "Username is available" if db_user is None else "Username already taken"
+    }

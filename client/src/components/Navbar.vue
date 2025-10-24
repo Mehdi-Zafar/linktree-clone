@@ -82,7 +82,7 @@ const { isAuthenticated, logout } = useAuth()
           <!-- Profile dropdown -->
           <Menu v-if="isAuthenticated" as="div" class="relative ml-3">
             <MenuButton
-              class="relative flex rounded-full focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500"
+              class="relative flex rounded-full cursor-pointer focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500"
             >
               <span class="absolute -inset-1.5" />
               <span class="sr-only">Open user menu</span>
@@ -126,7 +126,7 @@ const { isAuthenticated, logout } = useAuth()
                 </MenuItem>
                 <MenuItem v-slot="{ active }">
                   <span
-                    :class="[
+                    :class="['cursor-pointer',
                       active ? 'bg-white/5 outline-hidden' : '',
                       'block px-4 py-2 text-sm text-gray-300',
                     ]"

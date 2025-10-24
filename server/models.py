@@ -5,8 +5,8 @@ from database import Base
 import enum
 
 class LinkType(str, enum.Enum):
-    SOCIAL = "social"
-    CUSTOM = "custom"
+    BUTTON = "button"
+    LINK = "link"
 
 class SocialPlatform(str, enum.Enum):
     INSTAGRAM = "instagram"
@@ -72,8 +72,8 @@ class Link(Base):
     id = Column(Integer, primary_key=True, index=True)
     user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True)
     
-    # Link type: social or custom
-    link_type = Column(Enum(LinkType), default=LinkType.CUSTOM, nullable=False)
+    # Link type: button or link
+    link_type = Column(Enum(LinkType), default=LinkType.LINK, nullable=False)
     
     # For social links: platform identifier
     social_platform = Column(Enum(SocialPlatform), nullable=True)
@@ -88,9 +88,6 @@ class Link(Base):
     # Display settings
     position = Column(Integer, default=0, index=True)
     is_active = Column(Boolean, default=True)
-    
-    # Analytics
-    click_count = Column(Integer, default=0)
     
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())

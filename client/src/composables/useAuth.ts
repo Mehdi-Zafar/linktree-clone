@@ -3,7 +3,7 @@ import { authApi } from '@/api/auth.api'
 import type { LoginCredentials, RegisterData } from '@/shared/types'
 import { useRoute, useRouter } from 'vue-router'
 import { showToast, tokenHelpers } from '@/shared/utils'
-import { computed } from 'vue'
+import { computed, toValue, type Ref } from 'vue'
 
 export function useAuth() {
   const queryClient = useQueryClient()
@@ -40,7 +40,7 @@ export function useAuth() {
     mutationFn: (data: RegisterData) => authApi.register(data),
     onSuccess: () => {
       showToast('Sign up success!', 'success')
-      router.push('/login')
+      router.push('/sign-in')
     },
   })
 
@@ -55,7 +55,44 @@ export function useAuth() {
   }
 
   const isAuthenticated = computed(() => !!user.value)
-  console.log(isAuthenticated)
+
+  const validateEmail = async (email: string) => {
+    try {
+      const res = await authApi.validateEmail(email)
+      return res
+    } catch (err) {
+      console.error(err)
+    }
+  }
+
+  const validateUsername = async (username: string) => {
+    try {
+      const res = await authApi.validateUsername(username)
+      return res
+    } catch (err) {
+      console.error(err)
+    }
+  }
+
+  function useEmailValidation(email: Ref<string>) {
+    return useQuery({
+      queryKey: ['validate-email', email],
+      queryFn: () => authApi.validateEmail(toValue(email)),
+      enabled: false,
+      staleTime: 0,
+      retry: false,
+    })
+  }
+
+  function useUsernameValidation(username: Ref<string>) {
+    return useQuery({
+      queryKey: ['validate-username', username],
+      queryFn: () => authApi.validateUsername(toValue(username)),
+      enabled: false,
+      staleTime: 0,
+      retry: false,
+    })
+  }
 
   return {
     // State
@@ -68,6 +105,8 @@ export function useAuth() {
     register: registerMutation.mutate,
     logout,
     refetchUser: refetch,
+    useEmailValidation,
+    useUsernameValidation,
 
     // Mutation states
     isLoggingIn: loginMutation.isPending,

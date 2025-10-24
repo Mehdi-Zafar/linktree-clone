@@ -1,7 +1,7 @@
 import { computed } from 'vue'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/vue-query'
 import { linksApi } from '@/api/links.api'
-import type { LinkCreate, LinkUpdate, LinkReorder } from '@/shared/types'
+import { type LinkCreate, type LinkUpdate, type LinkReorder, LinkType } from '@/shared/types'
 
 /**
  * Composable for managing authenticated user's links
@@ -11,7 +11,7 @@ export function useLinks() {
 
   // Fetch all my links
   const {
-    data: links,
+    data: linksData,
     isLoading,
     error,
     refetch,
@@ -30,12 +30,6 @@ export function useLinks() {
   // Computed: Active links only
   const activeLinks = computed(() => {
     return sortedLinks.value.filter((link) => link.is_active)
-  })
-
-  // Computed: Total clicks across all links
-  const totalClicks = computed(() => {
-    if (!links.value) return 0
-    return links.value.reduce((sum, link) => sum + link.click_count, 0)
   })
 
   // Create link mutation
@@ -92,21 +86,28 @@ export function useLinks() {
     const newIndex = direction === 'up' ? currentIndex - 1 : currentIndex + 1
     if (newIndex < 0 || newIndex >= sortedLinks.value.length) return
 
-    // Create reorder data for affected links
-    const reorderData: LinkReorder[] = [
-      { link_id: sortedLinks.value[currentIndex].id, new_position: newIndex },
-      { link_id: sortedLinks.value[newIndex].id, new_position: currentIndex },
-    ]
+    if (sortedLinks.value[currentIndex] && sortedLinks.value[newIndex]) {
+      // Create reorder data for affected links
+      const reorderData: LinkReorder[] = [
+        { link_id: sortedLinks.value[currentIndex].id, new_position: newIndex },
+        { link_id: sortedLinks.value[newIndex].id, new_position: currentIndex },
+      ]
 
-    reorderMutation.mutate(reorderData)
+      reorderMutation.mutate(reorderData)
+    }
   }
+
+  const buttons = computed(() =>
+    linksData?.value?.filter((link) => link.link_type === LinkType.BUTTON),
+  )
+  const links = computed(() => linksData?.value?.filter((link) => link.link_type === LinkType.LINK))
 
   return {
     // State
     links,
+    buttons,
     sortedLinks,
     activeLinks,
-    totalClicks,
     isLoading,
     error,
 

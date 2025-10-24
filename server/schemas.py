@@ -15,6 +15,16 @@ class UserLogin(BaseModel):
     email: EmailStr
     password: str
 
+class EmailValidationResponse(BaseModel):
+    email: str
+    available: bool
+    message: str
+
+class UsernameValidationResponse(BaseModel):
+    username: str
+    available: bool
+    message: str
+
 # ============ USER SCHEMAS ============
 class UserBase(BaseModel):
     email: EmailStr
@@ -77,8 +87,8 @@ class ProfileResponse(ProfileBase):
 
 # ============ LINK SCHEMAS ============
 class LinkType(str, Enum):
-    SOCIAL = "social"
-    CUSTOM = "custom"
+    BUTTON = "button"
+    LINK = "link"
 
 class SocialPlatform(str, Enum):
     INSTAGRAM = "instagram"
@@ -98,8 +108,9 @@ class SocialPlatform(str, Enum):
     WHATSAPP = "whatsapp"
     OTHER = "other"
 
+
 class LinkBase(BaseModel):
-    link_type: LinkType = LinkType.CUSTOM
+    link_type: LinkType = LinkType.LINK
     social_platform: Optional[SocialPlatform] = None
     title: str = Field(..., max_length=200)
     url: str = Field(..., max_length=2000)
@@ -124,7 +135,6 @@ class LinkUpdate(BaseModel):
 class LinkResponse(LinkBase):
     id: int
     user_id: int
-    click_count: int
     created_at: datetime
     updated_at: Optional[datetime]
     

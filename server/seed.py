@@ -1,6 +1,6 @@
 from sqlalchemy.orm import Session
 from database import Base, engine, SessionLocal
-from models import User, Profile, Link
+from models import User, Profile, Link,SocialPlatform, LinkType
 from sqlalchemy.exc import IntegrityError
 from auth import get_password_hash
 
@@ -81,26 +81,36 @@ def seed_data():
         # ---- LINKS ----
         links = [
             Link(
-                user_id=user1.id,
+                user_id=1,
+                link_type=LinkType.LINK,
                 title="My Portfolio",
                 url="https://johnportfolio.com",
                 description="My personal web development projects",
-                icon="globe",
+                thumbnail_url=None,
                 position=1,
+                is_active=True,
             ),
             Link(
-                user_id=user1.id,
+                user_id=1,
+                link_type=LinkType.BUTTON,
+                social_platform=SocialPlatform.GITHUB,
                 title="GitHub",
                 url="https://github.com/johndoe",
-                icon="github",
+                description=None,
+                thumbnail_url=None,
                 position=2,
+                is_active=True,
             ),
             Link(
-                user_id=user2.id,
+                user_id=2,
+                link_type=LinkType.BUTTON,
+                social_platform=SocialPlatform.LINKEDIN,
                 title="LinkedIn",
                 url="https://linkedin.com/in/janesmith",
-                icon="linkedin",
+                description=None,
+                thumbnail_url=None,
                 position=1,
+                is_active=True,
             ),
         ]
 

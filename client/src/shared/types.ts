@@ -16,6 +16,18 @@ export interface RegisterData {
   confirmPassword: string
 }
 
+export interface EmailValidationResponse {
+  email: string
+  available: boolean
+  message: string
+}
+
+export interface UsernameValidationResponse {
+  username: string
+  available: boolean
+  message: string
+}
+
 // ============ USER TYPES ============
 export interface User {
   id: number
@@ -72,36 +84,62 @@ export interface ProfileCreate {
 export interface ProfileUpdate extends ProfileCreate {}
 
 // ============ LINK TYPES ============
+export enum LinkType {
+  BUTTON = 'button',
+  LINK = 'link',
+}
+
+export enum SocialPlatform {
+  INSTAGRAM = 'instagram',
+  TWITTER = 'twitter',
+  FACEBOOK = 'facebook',
+  LINKEDIN = 'linkedin',
+  YOUTUBE = 'youtube',
+  TIKTOK = 'tiktok',
+  GITHUB = 'github',
+  DISCORD = 'discord',
+  TWITCH = 'twitch',
+  SPOTIFY = 'spotify',
+  PINTEREST = 'pinterest',
+  SNAPCHAT = 'snapchat',
+  REDDIT = 'reddit',
+  TELEGRAM = 'telegram',
+  WHATSAPP = 'whatsapp',
+  OTHER = 'other',
+}
+
 export interface Link {
   id: number
   user_id: number
+  link_type: LinkType
+  social_platform: SocialPlatform | null
   title: string
   url: string
   description: string | null
-  icon: string | null
   thumbnail_url: string | null
   position: number
   is_active: boolean
-  click_count: number
   created_at: string
   updated_at: string | null
 }
 
 export interface LinkCreate {
+  link_type?: LinkType
+  social_platform?: SocialPlatform
   title: string
   url: string
   description?: string
-  icon?: string
   thumbnail_url?: string
   position?: number
   is_active?: boolean
 }
 
 export interface LinkUpdate {
+  link_type?: LinkType
+  social_platform?: SocialPlatform
   title?: string
   url?: string
   description?: string
-  icon?: string
   thumbnail_url?: string
   position?: number
   is_active?: boolean

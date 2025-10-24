@@ -66,7 +66,7 @@ const submit = async () => {
             :errorMessage="r$.email.$error ? r$.email.$errors[0] : null"
             :touched="r$.email.$dirty"
           >
-            <template #icon>
+            <template #leftIcon>
               <EnvelopeIcon class="inputIcon" />
             </template>
           </Input>
@@ -82,7 +82,7 @@ const submit = async () => {
             :touched="r$.password.$dirty"
             :isPassword="true"
           >
-            <template #icon>
+            <template #leftIcon>
               <LockClosedIcon class="inputIcon" />
             </template>
           </Input>

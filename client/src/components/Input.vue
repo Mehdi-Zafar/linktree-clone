@@ -7,7 +7,7 @@ import { EyeIcon, EyeSlashIcon } from '@heroicons/vue/24/outline'
 
 const slots = useSlots()
 
-const hasIconSlot = !!slots.icon
+const hasIconSlot = !!slots.leftIcon
 const showPassword = ref(false)
 
 const props = defineProps<{
@@ -59,8 +59,9 @@ function toggleShowPassword() {
   <div :class="twMerge('space-y-0.5', containerClass)">
     <label :for="id" :class="twMerge('inputLabel', labelClass)">{{ label }}</label>
     <div class="relative">
-      <slot name="icon"></slot>
+      <slot name="leftIcon"></slot>
 
+      <slot name="rightIcon"></slot>
       <template v-if="isPassword">
         <EyeIcon
           v-if="!showPassword"

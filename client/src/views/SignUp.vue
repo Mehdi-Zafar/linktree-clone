@@ -1,14 +1,22 @@
 <script setup lang="ts">
 import Button from '@/components/Button.vue'
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 import { RouterLink } from 'vue-router'
 import logo from '@/assets/images/linktree-logo-icon.png'
 import { useRegle } from '@regle/core'
 import { email, minLength, required, withMessage } from '@regle/rules'
 import Input from '@/components/Input.vue'
-import { EnvelopeIcon, LockClosedIcon, UserCircleIcon } from '@heroicons/vue/24/outline'
+import {
+  CheckCircleIcon,
+  EnvelopeIcon,
+  LockClosedIcon,
+  UserCircleIcon,
+  XCircleIcon,
+} from '@heroicons/vue/24/outline'
 import { twMerge } from 'tailwind-merge'
 import { useAuth } from '@/composables/useAuth'
+import LoadingSpinner from '@/components/LoadingSpinner.vue'
+import { useDebounceFn } from '@vueuse/core'
 
 const form = ref({
   username: '',
@@ -16,47 +24,95 @@ const form = ref({
   password: '',
   confirmPassword: '',
 })
+const isUsernameValid = ref(false)
+const isEmailValid = ref(false)
+const usernameError = computed(() =>
+  usernameValidation && !usernameValidation.value?.available
+    ? usernameValidation.value?.message
+    : r$.username.$error
+      ? r$.username.$errors[0]
+      : null,
+)
+const emailError = computed(() =>
+  emailValidation && !emailValidation.value?.available
+    ? emailValidation.value?.message
+    : r$.email.$error
+      ? r$.email.$errors[0]
+      : null,
+)
 
 const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]).{8,}$/
 const usernameRegex = /^[a-zA-Z][a-zA-Z0-9_.-]*[a-zA-Z0-9]$|^[a-zA-Z]$/
+const specialCharacterRegex = /(?=.*[^A-Za-z0-9])/
+const numberRegex = /(?=.*\d)/
 
 // Initialize Regle with validation rules
-const { r$ } = useRegle(form, {
-  username: {
-    required: withMessage(required, 'Username is required'),
-    minLength: withMessage(minLength(6), 'Username should be atleast 6 characters'),
-    complexity: withMessage((val) => {
-      if (!val) return false
-      return usernameRegex.test(val?.toString())
-    }, 'Invalid Username'),
+const { r$ } = useRegle(
+  form,
+  {
+    username: {
+      required: withMessage(required, 'Username is required'),
+      minLength: withMessage(minLength(6), 'Username should be atleast 6 characters'),
+      complexity: withMessage((val) => {
+        if (!val) return false
+        return usernameRegex.test(val?.toString())
+      }, 'Invalid Username'),
+    },
+    email: {
+      required: withMessage(required, 'Email is required'),
+      email: withMessage(email, 'Invalid email'),
+    },
+    password: {
+      required: withMessage(required, 'Password is required'),
+      // custom rule for complexity
+      complexity: withMessage((val) => {
+        if (!val) return false
+        return passwordRegex.test(val?.toString())
+      }, 'Invalid Password'),
+    },
+    confirmPassword: {
+      required: withMessage(required, 'Confirm Password is required'),
+      match: withMessage((val) => {
+        if (!val) return false
+        // compare with password field
+        return val === form.value.password
+      }, 'Passwords do not match'),
+    },
   },
-  email: {
-    required: withMessage(required, 'Email is required'),
-    email: withMessage(email, 'Invalid email'),
-  },
-  password: {
-    required: withMessage(required, 'Password is required'),
-    // custom rule for complexity
-    complexity: withMessage((val) => {
-      if (!val) return false
-      return passwordRegex.test(val?.toString())
-    }, 'Password must be at least 8 characters, include a number and a special character'),
-  },
-  confirmPassword: {
-    required: withMessage(required, 'Confirm Password is required'),
-    match: withMessage((val) => {
-      if (!val) return false
-      // compare with password field
-      return val === form.value.password
-    }, 'Passwords do not match'),
-  },
-})
-const { register, isRegistering } = useAuth()
+  { lazy: true },
+)
+const { register, isRegistering, useEmailValidation, useUsernameValidation } = useAuth()
 
-const submit = async () => {
+const {
+  data: emailValidation,
+  isFetching: isEmailLoading,
+  status: emailStatus,
+  refetch: checkEmail,
+} = useEmailValidation(computed(() => form.value.email))
+
+const {
+  data: usernameValidation,
+  isFetching: isUsernameLoading,
+  status: usernameStatus,
+  refetch: checkUsername,
+} = useUsernameValidation(computed(() => form.value.username))
+
+const usernameChange = useDebounceFn(async () => {
+  if (r$.username.$invalid || !form.value.username) return
+  await checkUsername()
+  isUsernameValid.value = !!usernameValidation.value?.available
+}, 500)
+
+const emailChange = useDebounceFn(async () => {
+  if (r$.email.$invalid || !form.value.email) return
+  await checkEmail()
+  isEmailValid.value = !!emailValidation.value?.available
+}, 500)
+
+const submit = async () => {debugger
   await r$.$validate()
 
-  if (!r$.$invalid) {
+  if (!r$.$invalid && !(usernameError.value || emailError.value)) {
     console.log('Form is valid!', form.value)
     register(form.value)
   }
@@ -88,11 +144,21 @@ const submit = async () => {
             v-model="form.username"
             placeholder="Enter your username"
             @blur="r$.username.$touch()"
-            :errorMessage="r$.username.$error ? r$.username.$errors[0] : null"
+            :errorMessage="usernameError"
             :touched="r$.username.$dirty"
+            @input="usernameChange()"
           >
-            <template #icon>
+            <template #leftIcon>
               <UserCircleIcon class="inputIcon" />
+            </template>
+            <template #rightIcon v-if="!r$.username.$invalid && form.username">
+              <div class="absolute w-5 top-1/2 right-3 -translate-y-1/2 opacity-70 cursor-pointer">
+                <LoadingSpinner v-if="isUsernameLoading" :size="20" />
+                <template v-if="usernameStatus !== 'pending'">
+                  <CheckCircleIcon v-if="isUsernameValid" class="text-emerald-500" />
+                  <XCircleIcon v-else-if="!isUsernameValid" class="text-red-500" />
+                </template>
+              </div>
             </template>
           </Input>
           <Input
@@ -103,11 +169,21 @@ const submit = async () => {
             v-model="form.email"
             placeholder="Enter your email"
             @blur="r$.email.$touch()"
-            :errorMessage="r$.email.$error ? r$.email.$errors[0] : null"
+            :errorMessage="emailError"
             :touched="r$.email.$dirty"
+            @input="emailChange()"
           >
-            <template #icon>
+            <template #leftIcon>
               <EnvelopeIcon class="inputIcon" />
+            </template>
+            <template #rightIcon v-if="!r$.email.$invalid && form.email">
+              <div class="absolute w-5 top-1/2 right-3 -translate-y-1/2 opacity-70 cursor-pointer">
+                <LoadingSpinner v-if="isEmailLoading" />
+                <template v-if="emailStatus !== 'pending'">
+                  <CheckCircleIcon v-if="isEmailValid" class="text-emerald-500" />
+                  <XCircleIcon v-else-if="!isEmailValid" class="text-red-500" />
+                </template>
+              </div>
             </template>
           </Input>
           <Input
@@ -122,10 +198,41 @@ const submit = async () => {
             :touched="r$.password.$dirty"
             :isPassword="true"
           >
-            <template #icon>
+            <template #leftIcon>
               <LockClosedIcon class="inputIcon" />
             </template>
           </Input>
+
+          <div>
+            <ul class="text-xs space-y-2 list-disc ml-4">
+              <li>
+                <div class="flex items-center gap-2">
+                  Password must be atleast 8 characters {{ r$.password.$dirty }}
+                  <CheckCircleIcon v-if="form.password?.length >= 8" class="w-5 text-emerald-500" />
+                  <XCircleIcon v-else class="w-5 text-red-500" />
+                </div>
+              </li>
+              <li>
+                <div class="flex items-center gap-2">
+                  Password must include atleast 1 number
+                  <CheckCircleIcon
+                    v-if="numberRegex.test(form.password)"
+                    class="w-5 text-emerald-500"
+                  />
+                  <XCircleIcon v-else class="w-5 text-red-500" />
+                </div>
+              </li>
+              <li>
+                <div class="flex items-center gap-2">
+                  Password must include atleast 1 special character<CheckCircleIcon
+                    v-if="specialCharacterRegex.test(form.password)"
+                    class="w-5 text-emerald-500"
+                  />
+                  <XCircleIcon v-else class="w-5 text-red-500" />
+                </div>
+              </li>
+            </ul>
+          </div>
           <Input
             name="confirmPassword"
             id="confirmPassword"
@@ -138,7 +245,7 @@ const submit = async () => {
             :touched="r$.confirmPassword.$dirty"
             :isPassword="true"
           >
-            <template #icon>
+            <template #leftIcon>
               <LockClosedIcon class="inputIcon" />
             </template>
           </Input>
