@@ -47,6 +47,16 @@ const editLink = (link: Link) => {
 const deleteLinkFunc = async (id: number) => {
   await deleteLink(id)
 }
+
+const closeEditButtonModal = () => {
+  showEditButtonModal.value = false
+  selectedLink.value = null
+}
+
+const closeEditLinkModal = () => {
+  showEditLinkModal.value = false
+  selectedLink.value = null
+}
 </script>
 
 <template>
@@ -111,8 +121,12 @@ const deleteLinkFunc = async (id: number) => {
                 />
 
                 <!-- Platform name -->
-                <span class="font-medium flex-1 text-gray-900 dark:text-gray-100">
+                <span
+                  class="font-medium flex-1 flex items-center gap-2 text-gray-900 dark:text-gray-100"
+                >
                   {{ SOCIAL_PLATFORMS[button.social_platform]?.name }}
+                  <span class="green-badge" v-if="button.is_active">Active</span>
+                  <span class="red-badge" v-else>Inactive</span>
                 </span>
 
                 <!-- Link -->
@@ -174,6 +188,8 @@ const deleteLinkFunc = async (id: number) => {
                 <!-- Platform name -->
                 <span class="font-medium flex-1 text-gray-900 dark:text-gray-100">
                   {{ link.title }}
+                  <span class="green-badge" v-if="link.is_active">Active</span>
+                  <span class="red-badge" v-else>Inactive</span>
                 </span>
 
                 <!-- Link -->
@@ -198,14 +214,14 @@ const deleteLinkFunc = async (id: number) => {
       <EditButtonModal
         v-if="selectedLink"
         :show="showEditButtonModal"
-        :on-close="() => (showEditButtonModal = false)"
+        :on-close="closeEditButtonModal"
         :selectedButton="selectedLink"
       />
       <AddLinkModal :show="showAddLinkModal" :on-close="() => (showAddLinkModal = false)" />
       <EditLinkModal
         v-if="selectedLink"
         :show="showEditLinkModal"
-        :on-close="() => (showEditLinkModal = false)"
+        :on-close="closeEditLinkModal"
         :selectedLink="selectedLink"
       />
     </div>

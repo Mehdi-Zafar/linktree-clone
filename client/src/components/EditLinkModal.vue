@@ -3,6 +3,7 @@ import { Dialog, DialogPanel, DialogTitle, TransitionChild, TransitionRoot } fro
 import Button from './Button.vue'
 import { useLinks } from '@/composables/useLinks'
 import type { Link, LinkUpdate } from '@/shared/types'
+import { ref } from 'vue'
 
 interface Props {
   show: boolean
@@ -12,9 +13,11 @@ interface Props {
 
 const props = defineProps<Props>()
 const { updateLink, isUpdating } = useLinks()
+// Create a local copy for editing
+const link = ref({ ...props.selectedLink })
 
 const editLink = async () => {
-  await updateLink(props.selectedLink.id, props.selectedLink as LinkUpdate)
+  await updateLink(link.value.id, link.value as LinkUpdate)
   props.onClose()
 }
 </script>
@@ -63,7 +66,7 @@ const editLink = async () => {
                   >
                   <input
                     type="text"
-                    v-model="selectedLink.title"
+                    v-model="link.title"
                     class="mt-1 w-full rounded-md bg-white dark:bg-gray-800 py-2 px-3 text-sm text-gray-900 dark:text-gray-100 shadow-sm outline-none"
                   />
                 </div>
@@ -74,7 +77,7 @@ const editLink = async () => {
                     >Description</label
                   >
                   <textarea
-                    v-model="selectedLink.description"
+                    v-model="link.description"
                     rows="3"
                     class="mt-1 w-full rounded-md bg-white dark:bg-gray-800 py-2 px-3 text-sm text-gray-900 dark:text-gray-100 shadow-sm outline-none"
                   />
@@ -87,7 +90,7 @@ const editLink = async () => {
                   >
                   <input
                     type="url"
-                    v-model="selectedLink.url"
+                    v-model="link.url"
                     :placeholder="'https://...'"
                     class="mt-1 w-full rounded-md bg-white dark:bg-gray-800 py-2 px-3 text-sm text-gray-900 dark:text-gray-100 shadow-sm outline-none"
                   />
@@ -97,7 +100,7 @@ const editLink = async () => {
                 <div class="flex items-center justify-between">
                   <span class="text-sm text-gray-700 dark:text-gray-300">Active</span>
                   <label class="relative inline-flex items-center cursor-pointer">
-                    <input type="checkbox" class="sr-only peer" v-model="selectedLink.is_active" />
+                    <input type="checkbox" class="sr-only peer" v-model="link.is_active" />
                     <div
                       class="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer dark:bg-gray-700 peer-checked:bg-emerald-500 peer-checked:after:translate-x-5 after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all"
                     ></div>

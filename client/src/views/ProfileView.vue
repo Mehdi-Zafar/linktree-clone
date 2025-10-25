@@ -33,24 +33,27 @@ console.log(isAuthenticated.value)
           v-for="button in buttons"
           class="bg-emerald-500 dark:bg-emerald-600 w-16 h-16 rounded-full flex items-center justify-center cursor-pointer hover:scale-110 duration-250"
         >
-          <component
-            v-if="button.social_platform"
-            :is="SOCIAL_PLATFORMS[button.social_platform]?.icon"
-            class="w-8 text-lightText"
-          />
+          <a :href="'//' + button.url" target="_blank">
+            <component
+              v-if="button.social_platform"
+              :is="SOCIAL_PLATFORMS[button.social_platform]?.icon"
+              class="w-8 text-lightText"
+            />
+          </a>
         </div>
       </div>
 
       <div class="grid grid-cols-3 gap-x-8 gap-y-5 min-w-4xl mt-2">
-        <div
-          v-for="link in links"
-          class="bg-emerald-500 dark:bg-emerald-600 flex items-center gap-4 w-full rounded-lg py-2 px-2 cursor-pointer hover:scale-105 duration-250"
-        >
-          <span class="w-10 h-10 text-lightText flex justify-center items-center rounded-lg"
-            ><LinkIcon class="w-6"
-          /></span>
-          <h4 class="flex-1 text-lightText">{{ link.title }}</h4>
-        </div>
+        <a v-for="link in links" :href="'//' + link.url" target="_blank">
+          <div
+            class="bg-emerald-500 dark:bg-emerald-600 flex items-center gap-4 w-full rounded-lg py-2 px-2 cursor-pointer hover:scale-105 duration-250"
+          >
+            <span class="w-10 h-10 text-lightText flex justify-center items-center rounded-lg"
+              ><LinkIcon class="w-6"
+            /></span>
+            <h4 class="flex-1 text-lightText">{{ link.title }}</h4>
+          </div>
+        </a>
       </div>
     </div>
   </div>

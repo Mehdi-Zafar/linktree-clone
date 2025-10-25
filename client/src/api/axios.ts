@@ -31,8 +31,8 @@ api.interceptors.response.use(
     if (error.response?.status === 401) {
       // Token expired or invalid
       tokenHelpers.removeToken()
-      window.location.href = '/login'
-      showToast('Session Expired!')
+      window.location.href = '/sign-in'
+      showToast('Session Expired!', 'error')
     }
 
     // Return error details

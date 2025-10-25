@@ -1,13 +1,21 @@
 import { computed } from 'vue'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/vue-query'
 import { linksApi } from '@/api/links.api'
-import { type LinkCreate, type LinkUpdate, type LinkReorder, LinkType } from '@/shared/types'
+import {
+  type LinkCreate,
+  type LinkUpdate,
+  type LinkReorder,
+  LinkType,
+  type Link,
+} from '@/shared/types'
+import { useAuth } from './useAuth'
 
 /**
  * Composable for managing authenticated user's links
  */
 export function useLinks() {
   const queryClient = useQueryClient()
+  const { user } = useAuth()
 
   // Fetch all my links
   const {
@@ -35,24 +43,39 @@ export function useLinks() {
   // Create link mutation
   const createMutation = useMutation({
     mutationFn: (data: LinkCreate) => linksApi.create(data),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['myLinks'] })
+    onSuccess: (newLink) => {
+      // Add the new link to the existing query data
+      queryClient.setQueryData<Link[]>(['myLinks'], (oldLinks) => {
+        if (!oldLinks) return [newLink]
+        return [...oldLinks, newLink]
+      })
+      queryClient.invalidateQueries({ queryKey: ['publicLinks', user.value?.username] })
     },
   })
 
   // Update link mutation
   const updateMutation = useMutation({
     mutationFn: ({ id, data }: { id: number; data: LinkUpdate }) => linksApi.update(id, data),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['myLinks'] })
+    onSuccess: (updatedLink) => {
+      // Update the specific link in the query data
+      queryClient.setQueryData<Link[]>(['myLinks'], (oldLinks) => {
+        if (!oldLinks) return [updatedLink]
+        return oldLinks.map((link) => (link.id === updatedLink.id ? updatedLink : link))
+      })
+      queryClient.invalidateQueries({ queryKey: ['publicLinks', user.value?.username] })
     },
   })
 
   // Delete link mutation
   const deleteMutation = useMutation({
     mutationFn: (id: number) => linksApi.delete(id),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['myLinks'] })
+    onSuccess: (_, deletedId) => {
+      // Remove the deleted link from query data
+      queryClient.setQueryData<Link[]>(['myLinks'], (oldLinks) => {
+        if (!oldLinks) return []
+        return oldLinks.filter((link) => link.id !== deletedId)
+      })
+      queryClient.invalidateQueries({ queryKey: ['publicLinks', user.value?.username] })
     },
   })
 

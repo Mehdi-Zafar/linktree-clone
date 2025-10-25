@@ -55,6 +55,14 @@ body {
   @apply text-lightText;
 }
 
+.green-badge{
+  @apply inline-flex items-center rounded-md bg-green-400/10 px-2 py-1 text-xs font-medium text-green-400 inset-ring inset-ring-green-500/20;
+}
+
+.red-badge{
+  @apply inline-flex items-center rounded-md bg-red-400/10 px-2 py-1 text-xs font-medium text-red-400 inset-ring inset-ring-red-400/20;
+}
+
 @layer base {
   input:-webkit-autofill,
   input:-webkit-autofill:hover,
