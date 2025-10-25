@@ -22,7 +22,7 @@ const navigation = [
   { name: 'Contact', href: '/contact', current: false },
 ]
 const route = useRoute()
-const { isAuthenticated, logout } = useAuth()
+const { isAuthenticated, logout,user } = useAuth()
 </script>
 
 <template>
@@ -106,7 +106,7 @@ const { isAuthenticated, logout } = useAuth()
               >
                 <MenuItem v-slot="{ active }">
                   <RouterLink
-                    to="/profile"
+                    :to="`/profile/${user?.username}`"
                     :class="[
                       active ? 'bg-white/5 outline-hidden' : '',
                       'block px-4 py-2 text-sm text-gray-300',

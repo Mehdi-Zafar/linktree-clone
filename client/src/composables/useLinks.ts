@@ -112,9 +112,9 @@ export function useLinks() {
     error,
 
     // Actions
-    createLink: createMutation.mutate,
-    updateLink: (id: number, data: LinkUpdate) => updateMutation.mutate({ id, data }),
-    deleteLink: deleteMutation.mutate,
+    createLink: createMutation.mutateAsync,
+    updateLink: (id: number, data: LinkUpdate) => updateMutation.mutateAsync({ id, data }),
+    deleteLink: deleteMutation.mutateAsync,
     reorderLinks: reorderMutation.mutate,
     toggleActive,
     moveLink,
@@ -138,7 +138,7 @@ export function useLinks() {
  */
 export function usePublicLinks(username: string) {
   const {
-    data: links,
+    data: linksData,
     isLoading,
     error,
     refetch,
@@ -152,8 +152,13 @@ export function usePublicLinks(username: string) {
 
   // Sorted links
   const sortedLinks = computed(() => {
-    if (!links.value) return []
-    return [...links.value].sort((a, b) => a.position - b.position)
+    if (!linksData.value) return []
+    return [...linksData.value].sort((a, b) => a.position - b.position)
+  })
+
+  // Computed: Active links only
+  const activeLinks = computed(() => {
+    return sortedLinks.value.filter((link) => link.is_active)
   })
 
   // Track click mutation (no auth required)
@@ -175,8 +180,16 @@ export function usePublicLinks(username: string) {
     window.open(url, '_blank')
   }
 
+  const buttons = computed(() =>
+    activeLinks?.value?.filter((link) => link.link_type === LinkType.BUTTON),
+  )
+  const links = computed(() =>
+    activeLinks?.value?.filter((link) => link.link_type === LinkType.LINK),
+  )
+
   return {
     links,
+    buttons,
     sortedLinks,
     isLoading,
     error,

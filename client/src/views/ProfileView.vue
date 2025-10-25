@@ -1,19 +1,23 @@
 <script setup lang="ts">
 import profileImg from '@/assets/images/profile.jpg'
 import Button from '@/components/Button.vue'
-import { useLinks } from '@/composables/useLinks'
-import { getPlatformConfig, SOCIAL_PLATFORMS } from '@/shared/config'
+import { useAuth } from '@/composables/useAuth'
+import { useLinks, usePublicLinks } from '@/composables/useLinks'
+import { SOCIAL_PLATFORMS } from '@/shared/config'
 import { Link as LinkIcon } from 'lucide-vue-next'
 import { RouterLink } from 'vue-router'
 
-const { links, buttons } = useLinks()
-
+// const { links, buttons } = useLinks()
+// const
+const { isAuthenticated } = useAuth()
+const { links, buttons } = usePublicLinks('john_doe')
+console.log(isAuthenticated.value)
 </script>
 
 <template>
   <div class="relative">
     <img :src="profileImg" alt="" class="w-full h-64 object-cover brightness-75" />
-    <RouterLink to="/profile/edit" class="absolute top-4 right-4 w-fit"
+    <RouterLink v-if="isAuthenticated" to="/profile/edit" class="absolute top-4 right-4 w-fit"
       ><Button label="Edit Profile"
     /></RouterLink>
     <div class="relative -top-16 flex flex-col items-center justify-center gap-4">
@@ -29,7 +33,11 @@ const { links, buttons } = useLinks()
           v-for="button in buttons"
           class="bg-emerald-500 dark:bg-emerald-600 w-16 h-16 rounded-full flex items-center justify-center cursor-pointer hover:scale-110 duration-250"
         >
-          <component v-if="button.social_platform" :is="SOCIAL_PLATFORMS[button.social_platform]?.icon" class="w-8 text-lightText" />
+          <component
+            v-if="button.social_platform"
+            :is="SOCIAL_PLATFORMS[button.social_platform]?.icon"
+            class="w-8 text-lightText"
+          />
         </div>
       </div>
 

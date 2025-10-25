@@ -42,10 +42,9 @@ const router = createRouter({
           component: ContactView,
         },
         {
-          path: 'profile',
+          path: 'profile/:username',
           name: 'profile',
           component: ProfileView,
-          meta: { requiresAuth: true },
         },
         {
           path: 'profile/edit',
@@ -83,7 +82,7 @@ const router = createRouter({
 })
 
 // Global navigation guard
-router.beforeEach((to, from, next) => {
+router.beforeEach(async (to, from, next) => {
   const token = tokenHelpers.getToken()
   const isAuthenticated = !!token
 
@@ -98,7 +97,7 @@ router.beforeEach((to, from, next) => {
 
   // Check if route is for guests only (login/register)
   if (to.meta.requiresGuest && isAuthenticated) {
-    next('/profile')
+    next(`/profile`)
     return
   }
 

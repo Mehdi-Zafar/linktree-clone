@@ -1,7 +1,7 @@
 import axios, { AxiosError } from 'axios'
 import type { InternalAxiosRequestConfig } from 'axios'
 import type { ApiError } from '@/shared/types'
-import { tokenHelpers } from '@/shared/utils'
+import { showToast, tokenHelpers } from '@/shared/utils'
 
 const api = axios.create({
   baseURL: import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000',
@@ -31,7 +31,8 @@ api.interceptors.response.use(
     if (error.response?.status === 401) {
       // Token expired or invalid
       tokenHelpers.removeToken()
-    //   window.location.href = '/login'
+      window.location.href = '/login'
+      showToast('Session Expired!')
     }
 
     // Return error details

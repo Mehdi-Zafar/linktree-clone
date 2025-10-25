@@ -9,6 +9,7 @@ defineProps<{
   btnClass?: string
   onClick?: () => void
   loading?: boolean
+  outline?:boolean
 }>()
 </script>
 
@@ -18,6 +19,7 @@ defineProps<{
     :class="
       twMerge(
         'flex w-full justify-center items-center gap-2 cursor-pointer rounded-md px-3 py-1.5 text-sm/6 font-semibold text-lightText bg-emerald-500 hover:bg-emerald-600 transition-colors duration-200',
+        outline ? 'border text-emerald-500 bg-transparent hover:bg-transparent hover:opacity-80':'',
         btnClass,
       )
     "

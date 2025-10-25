@@ -30,8 +30,20 @@ export function useAuth() {
     onSuccess: async () => {
       // Fetch user data after successful login
       await queryClient.invalidateQueries({ queryKey: ['currentUser'] })
-      showToast('Sign In success!', 'success')
-      router.push('/profile')
+      // Wait for user to be available in cache
+      const fetchedUser = await queryClient.ensureQueryData({
+        queryKey: ['currentUser'],
+        queryFn: authApi.getCurrentUser,
+      })
+
+      showToast('Sign in success!', 'success')
+
+      // ✅ Redirect only when user data is available
+      if (fetchedUser?.username) {
+        router.push(`/profile/${fetchedUser.username}`)
+      } else {
+        router.push('/profile') // fallback
+      }
     },
   })
 
@@ -56,44 +68,6 @@ export function useAuth() {
 
   const isAuthenticated = computed(() => !!user.value)
 
-  const validateEmail = async (email: string) => {
-    try {
-      const res = await authApi.validateEmail(email)
-      return res
-    } catch (err) {
-      console.error(err)
-    }
-  }
-
-  const validateUsername = async (username: string) => {
-    try {
-      const res = await authApi.validateUsername(username)
-      return res
-    } catch (err) {
-      console.error(err)
-    }
-  }
-
-  function useEmailValidation(email: Ref<string>) {
-    return useQuery({
-      queryKey: ['validate-email', email],
-      queryFn: () => authApi.validateEmail(toValue(email)),
-      enabled: false,
-      staleTime: 0,
-      retry: false,
-    })
-  }
-
-  function useUsernameValidation(username: Ref<string>) {
-    return useQuery({
-      queryKey: ['validate-username', username],
-      queryFn: () => authApi.validateUsername(toValue(username)),
-      enabled: false,
-      staleTime: 0,
-      retry: false,
-    })
-  }
-
   return {
     // State
     user,
@@ -105,8 +79,6 @@ export function useAuth() {
     register: registerMutation.mutate,
     logout,
     refetchUser: refetch,
-    useEmailValidation,
-    useUsernameValidation,
 
     // Mutation states
     isLoggingIn: loginMutation.isPending,
@@ -114,4 +86,24 @@ export function useAuth() {
     isRegistering: registerMutation.isPending,
     registerError: registerMutation.error,
   }
+}
+
+export function useEmailValidation(email: Ref<string>) {
+  return useQuery({
+    queryKey: ['validate-email', email],
+    queryFn: () => authApi.validateEmail(toValue(email)),
+    enabled: false,
+    staleTime: 0,
+    retry: false,
+  })
+}
+
+export function useUsernameValidation(username: Ref<string>) {
+  return useQuery({
+    queryKey: ['validate-username', username],
+    queryFn: () => authApi.validateUsername(toValue(username)),
+    enabled: false,
+    staleTime: 0,
+    retry: false,
+  })
 }

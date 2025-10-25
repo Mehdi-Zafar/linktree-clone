@@ -54,3 +54,26 @@ body {
 .my-toast-description {
   @apply text-lightText;
 }
+
+@layer base {
+  input:-webkit-autofill,
+  input:-webkit-autofill:hover,
+  input:-webkit-autofill:focus,
+  input:-webkit-autofill:active {
+    -webkit-box-shadow: 0 0 0px 1000px var(--input-bg) inset !important;
+    box-shadow: 0 0 0px 1000px var(--input-bg) inset !important;
+    -webkit-text-fill-color: var(--input-text) !important;
+    transition: background-color 5000s ease-in-out 0s;
+    caret-color: var(--input-text) !important;
+  }
+
+  :root {
+    --input-bg: theme('colors.white');
+    --input-text: theme('colors.gray.900');
+  }
+
+  .dark {
+    --input-bg: theme('colors.gray.800');
+    --input-text: theme('colors.gray.100');
+  }
+}

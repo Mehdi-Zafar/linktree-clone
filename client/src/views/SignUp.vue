@@ -14,7 +14,7 @@ import {
   XCircleIcon,
 } from '@heroicons/vue/24/outline'
 import { twMerge } from 'tailwind-merge'
-import { useAuth } from '@/composables/useAuth'
+import { useAuth, useEmailValidation, useUsernameValidation } from '@/composables/useAuth'
 import LoadingSpinner from '@/components/LoadingSpinner.vue'
 import { useDebounceFn } from '@vueuse/core'
 
@@ -26,20 +26,35 @@ const form = ref({
 })
 const isUsernameValid = ref(false)
 const isEmailValid = ref(false)
-const usernameError = computed(() =>
-  usernameValidation && !usernameValidation.value?.available
-    ? usernameValidation.value?.message
-    : r$.username.$error
-      ? r$.username.$errors[0]
-      : null,
-)
-const emailError = computed(() =>
-  emailValidation && !emailValidation.value?.available
-    ? emailValidation.value?.message
-    : r$.email.$error
-      ? r$.email.$errors[0]
-      : null,
-)
+const usernameError = computed(() => {
+  // First check if query has been executed and username is taken
+  if (usernameValidation.value && !usernameValidation.value.available) {
+    return usernameValidation.value.message
+  }
+
+  // Otherwise, show Regle validation errors
+  if (r$.username.$error) {
+    return r$.username.$errors[0]
+  }
+
+  return null
+})
+
+const emailError = computed(() => {
+  // First check if query has been executed and email is taken
+  if (emailValidation.value && !emailValidation.value.available) {
+    return emailValidation.value.message
+  }
+
+  // Otherwise, show Regle validation errors
+  if (r$.email.$error) {
+    return r$.email.$errors[0]
+  }
+
+  return null
+})
+
+console.log(emailError)
 
 const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]).{8,}$/
 const usernameRegex = /^[a-zA-Z][a-zA-Z0-9_.-]*[a-zA-Z0-9]$|^[a-zA-Z]$/
@@ -81,7 +96,7 @@ const { r$ } = useRegle(
   },
   { lazy: true },
 )
-const { register, isRegistering, useEmailValidation, useUsernameValidation } = useAuth()
+const { register, isRegistering } = useAuth()
 
 const {
   data: emailValidation,
@@ -109,7 +124,7 @@ const emailChange = useDebounceFn(async () => {
   isEmailValid.value = !!emailValidation.value?.available
 }, 500)
 
-const submit = async () => {debugger
+const submit = async () => {
   await r$.$validate()
 
   if (!r$.$invalid && !(usernameError.value || emailError.value)) {
@@ -153,8 +168,10 @@ const submit = async () => {debugger
             </template>
             <template #rightIcon v-if="!r$.username.$invalid && form.username">
               <div class="absolute w-5 top-1/2 right-3 -translate-y-1/2 opacity-70 cursor-pointer">
-                <LoadingSpinner v-if="isUsernameLoading" :size="20" />
-                <template v-if="usernameStatus !== 'pending'">
+                <template v-if="isUsernameLoading">
+                  <LoadingSpinner :size="20" />
+                </template>
+                <template v-else-if="usernameStatus !== 'pending'">
                   <CheckCircleIcon v-if="isUsernameValid" class="text-emerald-500" />
                   <XCircleIcon v-else-if="!isUsernameValid" class="text-red-500" />
                 </template>
@@ -178,8 +195,10 @@ const submit = async () => {debugger
             </template>
             <template #rightIcon v-if="!r$.email.$invalid && form.email">
               <div class="absolute w-5 top-1/2 right-3 -translate-y-1/2 opacity-70 cursor-pointer">
-                <LoadingSpinner v-if="isEmailLoading" />
-                <template v-if="emailStatus !== 'pending'">
+                <template v-if="isEmailLoading">
+                  <LoadingSpinner :size="20" />
+                </template>
+                <template v-else-if="emailStatus !== 'pending'">
                   <CheckCircleIcon v-if="isEmailValid" class="text-emerald-500" />
                   <XCircleIcon v-else-if="!isEmailValid" class="text-red-500" />
                 </template>

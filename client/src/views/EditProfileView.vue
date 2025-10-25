@@ -3,11 +3,50 @@ import profileImg from '@/assets/images/profile.jpg'
 import IconButton from '@/components/IconButton.vue'
 import { useLinks } from '@/composables/useLinks'
 import { SOCIAL_PLATFORMS } from '@/shared/config'
-import { PencilIcon } from '@heroicons/vue/24/outline'
+import { type Link } from '@/shared/types'
+import { PencilIcon, PlusCircleIcon, TrashIcon } from '@heroicons/vue/24/outline'
+import { watchEffect } from 'vue'
 import { ref } from 'vue'
 import draggableComponent from 'vuedraggable'
+import AddButtonModal from '@/components/AddButtonModal.vue'
+import EditButtonModal from '@/components/EditButtonModal.vue'
+import AddLinkModal from '@/components/AddLinkModal.vue'
+import EditLinkModal from '@/components/EditLinkModal.vue'
 
-const { links, buttons } = useLinks()
+const { links, buttons, deleteLink, isDeleting } = useLinks()
+const showAddButtonModal = ref(false)
+const showEditButtonModal = ref(false)
+const showAddLinkModal = ref(false)
+const showEditLinkModal = ref(false)
+const selectedLink = ref<Link | null>(null)
+
+// Create a reactive list for draggable UI
+const userButtons = ref<Link[]>([])
+const userLinks = ref<Link[]>([])
+
+// ✅ Watch API data and populate when ready
+watchEffect(() => {
+  if (buttons.value && buttons.value.length) {
+    userButtons.value = [...buttons.value]
+  }
+  if (links.value && links.value.length) {
+    userLinks.value = [...links.value]
+  }
+})
+
+const editButton = (link: Link) => {
+  selectedLink.value = link
+  showEditButtonModal.value = true
+}
+
+const editLink = (link: Link) => {
+  selectedLink.value = link
+  showEditLinkModal.value = true
+}
+
+const deleteLinkFunc = async (id: number) => {
+  await deleteLink(id)
+}
 </script>
 
 <template>
@@ -32,12 +71,143 @@ const { links, buttons } = useLinks()
         </IconButton>
       </div>
 
-      <draggableComponent v-model="buttons" tag="ul" item-key="id">
-        <template #item="{ element: button }"
-          ><li :itemid="button">
-            <component :is="SOCIAL_PLATFORMS[button.social_platform]?.icon" class="w-5 h-5" /></li
-        ></template>
-      </draggableComponent>
+      <div class="min-w-lg mt-16 mb-8">
+        <div class="flex justify-between items-center">
+          <h2 class="text-left text-2xl">Buttons</h2>
+          <IconButton
+            btnClass="w-fit p-0 bg-transparent hover:bg-transparent"
+            :onClick="() => (showAddButtonModal = true)"
+          >
+            <template #icon>
+              <PlusCircleIcon class="w-10 text-emerald-500" />
+            </template>
+          </IconButton>
+        </div>
+
+        <div class="my-4">
+          <draggableComponent
+            v-model="userButtons"
+            tag="ul"
+            item-key="id"
+            handle=".drag-handle"
+            class="space-y-3"
+          >
+            <template #item="{ element: button }">
+              <li
+                class="flex items-center gap-3 bg-white dark:bg-gray-800 p-3 rounded-lg cursor-default"
+              >
+                <!-- Drag handle (only this part triggers drag) -->
+                <span
+                  class="drag-handle cursor-grab active:cursor-grabbing text-gray-500 dark:text-gray-400"
+                  title="Drag to reorder"
+                >
+                  ⋮⋮
+                </span>
+
+                <!-- Platform icon -->
+                <component
+                  :is="SOCIAL_PLATFORMS[button.social_platform]?.icon"
+                  class="w-5 h-5 text-emerald-500"
+                />
+
+                <!-- Platform name -->
+                <span class="font-medium flex-1 text-gray-900 dark:text-gray-100">
+                  {{ SOCIAL_PLATFORMS[button.social_platform]?.name }}
+                </span>
+
+                <!-- Link -->
+                <div class="flex items-center gap-2">
+                  <IconButton :onClick="() => editButton(button)">
+                    <template #icon>
+                      <PencilIcon class="w-5" />
+                    </template>
+                  </IconButton>
+                  <IconButton :disabled="isDeleting" :onClick="() => deleteLinkFunc(button.id)">
+                    <template #icon>
+                      <TrashIcon class="w-5" />
+                    </template>
+                  </IconButton>
+                </div>
+              </li>
+            </template>
+          </draggableComponent>
+        </div>
+      </div>
+      <div class="min-w-lg my-8">
+        <div class="flex justify-between items-center">
+          <h2 class="text-left text-2xl">Links</h2>
+          <IconButton
+            btnClass="w-fit p-0 bg-transparent hover:bg-transparent"
+            :onClick="() => (showAddLinkModal = true)"
+          >
+            <template #icon>
+              <PlusCircleIcon class="w-10 text-emerald-500" />
+            </template>
+          </IconButton>
+        </div>
+        <div class="my-4">
+          <draggableComponent
+            v-model="userLinks"
+            tag="ul"
+            item-key="id"
+            handle=".drag-handle"
+            class="space-y-3"
+          >
+            <template #item="{ element: link }">
+              <li
+                class="flex items-center gap-3 bg-white dark:bg-gray-800 p-3 rounded-lg cursor-default"
+              >
+                <!-- Drag handle (only this part triggers drag) -->
+                <span
+                  class="drag-handle cursor-grab active:cursor-grabbing text-gray-500 dark:text-gray-400"
+                  title="Drag to reorder"
+                >
+                  ⋮⋮
+                </span>
+
+                <!-- Platform icon -->
+                <component
+                  :is="SOCIAL_PLATFORMS[link.social_platform]?.icon"
+                  class="w-5 h-5 text-emerald-500"
+                />
+
+                <!-- Platform name -->
+                <span class="font-medium flex-1 text-gray-900 dark:text-gray-100">
+                  {{ link.title }}
+                </span>
+
+                <!-- Link -->
+                <div class="flex items-center gap-2">
+                  <IconButton :onClick="() => editLink(link)">
+                    <template #icon>
+                      <PencilIcon class="w-5" />
+                    </template>
+                  </IconButton>
+                  <IconButton :disabled="isDeleting" :onClick="() => deleteLinkFunc(link.id)">
+                    <template #icon>
+                      <TrashIcon class="w-5" />
+                    </template>
+                  </IconButton>
+                </div>
+              </li>
+            </template>
+          </draggableComponent>
+        </div>
+      </div>
+      <AddButtonModal :show="showAddButtonModal" :on-close="() => (showAddButtonModal = false)" />
+      <EditButtonModal
+        v-if="selectedLink"
+        :show="showEditButtonModal"
+        :on-close="() => (showEditButtonModal = false)"
+        :selectedButton="selectedLink"
+      />
+      <AddLinkModal :show="showAddLinkModal" :on-close="() => (showAddLinkModal = false)" />
+      <EditLinkModal
+        v-if="selectedLink"
+        :show="showEditLinkModal"
+        :on-close="() => (showEditLinkModal = false)"
+        :selectedLink="selectedLink"
+      />
     </div>
   </div>
 </template>
