@@ -1,25 +1,30 @@
 <script setup lang="ts">
 import profileImg from '@/assets/images/profile.jpg'
 import Button from '@/components/Button.vue'
-import { useAuth } from '@/composables/useAuth'
 import { useLinks, usePublicLinks } from '@/composables/useLinks'
 import { SOCIAL_PLATFORMS } from '@/shared/config'
 import { Link as LinkIcon } from 'lucide-vue-next'
 import { RouterLink } from 'vue-router'
+import { useAuthStore } from '@/stores/auth'
 
 // const { links, buttons } = useLinks()
 // const
-const { isAuthenticated } = useAuth()
+const { isAuthenticated } = useAuthStore()
 const { links, buttons } = usePublicLinks('john_doe')
-console.log(isAuthenticated.value)
 </script>
 
 <template>
   <div class="relative">
-    <img :src="profileImg" alt="" class="w-full h-64 object-cover brightness-75" />
-    <RouterLink v-if="isAuthenticated" to="/profile/edit" class="absolute top-4 right-4 w-fit"
-      ><Button label="Edit Profile"
-    /></RouterLink>
+    <div class="relative max-w-xl h-64 mx-auto">
+      <img
+        :src="profileImg"
+        alt=""
+        class="w-full h-full object-cover brightness-75 rounded-lg mt-0.5"
+      />
+      <RouterLink v-if="isAuthenticated" to="/profile/edit" class="absolute top-4 right-4 w-fit"
+        ><Button label="Edit Profile"
+      /></RouterLink>
+    </div>
     <div class="relative -top-16 flex flex-col items-center justify-center gap-4">
       <img
         src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80"
@@ -27,23 +32,22 @@ console.log(isAuthenticated.value)
         class="w-32 h-32 rounded-full"
       />
       <h1 class="text-2xl font-semibold">Alex Ferguson</h1>
-      <p class="text-sm">A person located in Sydney, Australia.</p>
+      <p class="text-base">A person located in Sydney, Australia.</p>
       <div class="flex items-center justify-center gap-4">
-        <div
-          v-for="button in buttons"
-          class="bg-emerald-500 dark:bg-emerald-600 w-16 h-16 rounded-full flex items-center justify-center cursor-pointer hover:scale-110 duration-250"
-        >
-          <a :href="'//' + button.url" target="_blank">
+        <a v-for="button in buttons" :href="'//' + button.url" target="_blank">
+          <div
+            class="bg-emerald-500 dark:bg-emerald-600 w-16 h-16 rounded-full flex items-center justify-center cursor-pointer hover:scale-110 duration-250"
+          >
             <component
               v-if="button.social_platform"
               :is="SOCIAL_PLATFORMS[button.social_platform]?.icon"
               class="w-8 text-lightText"
             />
-          </a>
-        </div>
+          </div>
+        </a>
       </div>
 
-      <div class="grid grid-cols-3 gap-x-8 gap-y-5 min-w-4xl mt-2">
+      <div class="grid grid-cols-1 gap-x-8 gap-y-5 min-w-lg mt-2">
         <a v-for="link in links" :href="'//' + link.url" target="_blank">
           <div
             class="bg-emerald-500 dark:bg-emerald-600 flex items-center gap-4 w-full rounded-lg py-2 px-2 cursor-pointer hover:scale-105 duration-250"

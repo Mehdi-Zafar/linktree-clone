@@ -7,9 +7,9 @@ import AuthLayout from './layouts/AuthLayout.vue'
 import DefaultLayout from './layouts/DefaultLayout.vue'
 import PricingView from '@/views/PricingView.vue'
 import ContactView from '@/views/ContactView.vue'
-import { tokenHelpers } from '@/shared/utils'
 import ProfileView from '@/views/ProfileView.vue'
 import EditProfileView from '@/views/EditProfileView.vue'
+import { useAuthStore } from '@/stores/auth'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -83,20 +83,22 @@ const router = createRouter({
 
 // Global navigation guard
 router.beforeEach(async (to, from, next) => {
-  const token = tokenHelpers.getToken()
-  const isAuthenticated = !!token
+  const authStore = useAuthStore()
+
+  if (!authStore.isInitialized) {
+    await authStore.initialize()
+  }
 
   // Check if route requires authentication
-  if (to.meta.requiresAuth && !isAuthenticated) {
+  if (to.meta.requiresAuth && !authStore.isAuthenticated) {
     next({
       path: '/sign-in',
-      query: { redirect: to.fullPath }, // Save intended destination
     })
     return
   }
 
   // Check if route is for guests only (login/register)
-  if (to.meta.requiresGuest && isAuthenticated) {
+  if (to.meta.requiresGuest && authStore.isAuthenticated) {
     next(`/profile`)
     return
   }

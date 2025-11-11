@@ -1,4 +1,3 @@
-import { tokenHelpers } from '@/shared/utils'
 import api from './axios'
 import type {
   Token,
@@ -30,9 +29,13 @@ export const authApi = {
       },
     })
 
-    // Store token
-    tokenHelpers.setToken(response.data.access_token)
+    // DO NOT store token here - will be handled by auth store
+    return response.data
+  },
 
+  // Refresh access token
+  refresh: async (): Promise<Token> => {
+    const response = await api.post<Token>(`${BASE_URL}/refresh`)
     return response.data
   },
 
@@ -42,19 +45,23 @@ export const authApi = {
     return response.data
   },
 
-  // Logout
-  logout: () => {
-    tokenHelpers.removeToken()
+  // Logout - calls backend to clear cookie
+  logout: async (): Promise<void> => {
+    await api.post(`${BASE_URL}/logout`)
   },
 
+  // Email validation
   validateEmail: async (email: string): Promise<EmailValidationResponse> => {
-    const response = await api.get<EmailValidationResponse>(`${BASE_URL}/validate/email/${email}`)
+    const response = await api.get<EmailValidationResponse>(
+      `${BASE_URL}/validate/email/${encodeURIComponent(email)}`
+    )
     return response.data
   },
 
+  // Username validation
   validateUsername: async (username: string): Promise<UsernameValidationResponse> => {
     const response = await api.get<UsernameValidationResponse>(
-      `${BASE_URL}/validate/username/${username}`,
+      `${BASE_URL}/validate/username/${encodeURIComponent(username)}`
     )
     return response.data
   },

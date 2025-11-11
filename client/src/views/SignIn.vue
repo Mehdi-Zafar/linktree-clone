@@ -8,7 +8,8 @@ import Input from '@/components/Input.vue'
 import { useRegle } from '@regle/core'
 import { required, email, withMessage } from '@regle/rules'
 import { twMerge } from 'tailwind-merge'
-import { useAuth } from '@/composables/useAuth'
+import { useAuthStore } from '@/stores/auth'
+import { storeToRefs } from 'pinia'
 
 const form = ref({
   email: '',
@@ -26,13 +27,14 @@ const { r$ } = useRegle(form, {
   },
 })
 
-const { login, isLoggingIn } = useAuth()
+const authStore = useAuthStore()
+const { isLoggingIn } = storeToRefs(authStore)
+const { login } = authStore
 
 const submit = async () => {
   await r$.$validate()
 
-  if (!r$.$invalid) {
-    console.log('Form is valid!', form.value)
+  if (!r$.$invalid && !isLoggingIn.value) {
     login(form.value)
   }
 }
@@ -92,7 +94,7 @@ const submit = async () => {
         </div>
 
         <div class="mt-5">
-          <Button label="Sign In" :onClick="submit" :loading="isLoggingIn"/>
+          <Button label="Sign In" :onClick="submit" :loading="isLoggingIn" />
         </div>
       </form>
 

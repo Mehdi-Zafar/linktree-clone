@@ -12,12 +12,14 @@ import AddButtonModal from '@/components/AddButtonModal.vue'
 import EditButtonModal from '@/components/EditButtonModal.vue'
 import AddLinkModal from '@/components/AddLinkModal.vue'
 import EditLinkModal from '@/components/EditLinkModal.vue'
+import ProfileImageModal from '@/components/ProfileImageModal.vue'
 
 const { links, buttons, deleteLink, isDeleting } = useLinks()
 const showAddButtonModal = ref(false)
 const showEditButtonModal = ref(false)
 const showAddLinkModal = ref(false)
 const showEditLinkModal = ref(false)
+const showProfileImageModal = ref(false)
 const selectedLink = ref<Link | null>(null)
 
 // Create a reactive list for draggable UI
@@ -61,12 +63,18 @@ const closeEditLinkModal = () => {
 
 <template>
   <div class="relative">
-    <img :src="profileImg" alt="" class="w-full h-64 object-cover brightness-75" />
-    <IconButton btnClass="absolute top-4 right-4 w-fit">
-      <template #icon>
-        <PencilIcon class="w-5" />
-      </template>
-    </IconButton>
+    <div class="relative max-w-xl h-64 mx-auto">
+      <img
+        :src="profileImg"
+        alt=""
+        class="w-full h-full object-cover brightness-75 rounded-lg mt-0.5"
+      />
+      <IconButton btnClass="absolute top-4 right-4 w-fit">
+        <template #icon>
+          <PencilIcon class="w-5" />
+        </template>
+      </IconButton>
+    </div>
     <div class="relative -top-16 flex flex-col items-center justify-center gap-4">
       <div class="relative">
         <img
@@ -74,14 +82,17 @@ const closeEditLinkModal = () => {
           alt=""
           class="w-32 h-32 rounded-full"
         />
-        <IconButton btnClass="absolute top-0 right-0 w-fit">
+        <IconButton
+          btnClass="absolute top-0 right-0 w-fit"
+          :onClick="() => (showProfileImageModal = true)"
+        >
           <template #icon>
             <PencilIcon class="w-5" />
           </template>
         </IconButton>
       </div>
 
-      <div class="min-w-lg mt-16 mb-8">
+      <div class="min-w-xl mt-16 mb-8">
         <div class="flex justify-between items-center">
           <h2 class="text-left text-2xl">Buttons</h2>
           <IconButton
@@ -147,7 +158,7 @@ const closeEditLinkModal = () => {
           </draggableComponent>
         </div>
       </div>
-      <div class="min-w-lg my-8">
+      <div class="min-w-xl my-8">
         <div class="flex justify-between items-center">
           <h2 class="text-left text-2xl">Links</h2>
           <IconButton
@@ -223,6 +234,10 @@ const closeEditLinkModal = () => {
         :show="showEditLinkModal"
         :on-close="closeEditLinkModal"
         :selectedLink="selectedLink"
+      />
+      <ProfileImageModal
+        :show="showProfileImageModal"
+        :on-close="() => (showProfileImageModal = false)"
       />
     </div>
   </div>

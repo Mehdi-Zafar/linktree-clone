@@ -8,14 +8,14 @@ import {
   LinkType,
   type Link,
 } from '@/shared/types'
-import { useAuth } from './useAuth'
+import { useAuthStore } from '@/stores/auth'
 
 /**
  * Composable for managing authenticated user's links
  */
 export function useLinks() {
   const queryClient = useQueryClient()
-  const { user } = useAuth()
+  const { user } = useAuthStore()
 
   // Fetch all my links
   const {
@@ -49,7 +49,7 @@ export function useLinks() {
         if (!oldLinks) return [newLink]
         return [...oldLinks, newLink]
       })
-      queryClient.invalidateQueries({ queryKey: ['publicLinks', user.value?.username] })
+      queryClient.invalidateQueries({ queryKey: ['publicLinks', user?.username] })
     },
   })
 
@@ -62,7 +62,7 @@ export function useLinks() {
         if (!oldLinks) return [updatedLink]
         return oldLinks.map((link) => (link.id === updatedLink.id ? updatedLink : link))
       })
-      queryClient.invalidateQueries({ queryKey: ['publicLinks', user.value?.username] })
+      queryClient.invalidateQueries({ queryKey: ['publicLinks', user?.username] })
     },
   })
 
@@ -75,7 +75,7 @@ export function useLinks() {
         if (!oldLinks) return []
         return oldLinks.filter((link) => link.id !== deletedId)
       })
-      queryClient.invalidateQueries({ queryKey: ['publicLinks', user.value?.username] })
+      queryClient.invalidateQueries({ queryKey: ['publicLinks', user?.username] })
     },
   })
 

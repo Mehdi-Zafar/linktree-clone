@@ -13,7 +13,8 @@ import ThemeToggleButton from './ThemeToggleButton.vue'
 import logo from '@/assets/images/linktree-logo-icon.png'
 import Button from './Button.vue'
 import { RouterLink, useRoute } from 'vue-router'
-import { useAuth } from '@/composables/useAuth'
+import { useAuthStore } from '@/stores/auth'
+import { storeToRefs } from 'pinia'
 
 const navigation = [
   { name: 'Home', href: '/', current: true },
@@ -22,7 +23,8 @@ const navigation = [
   { name: 'Contact', href: '/contact', current: false },
 ]
 const route = useRoute()
-const { isAuthenticated, logout,user } = useAuth()
+const authStore = useAuthStore()
+const { isAuthenticated, user } = storeToRefs(authStore)
 </script>
 
 <template>
@@ -126,11 +128,12 @@ const { isAuthenticated, logout,user } = useAuth()
                 </MenuItem>
                 <MenuItem v-slot="{ active }">
                   <span
-                    :class="['cursor-pointer',
+                    :class="[
+                      'cursor-pointer',
                       active ? 'bg-white/5 outline-hidden' : '',
                       'block px-4 py-2 text-sm text-gray-300',
                     ]"
-                    @click="logout"
+                    @click="authStore.logout"
                     >Sign out</span
                   >
                 </MenuItem>

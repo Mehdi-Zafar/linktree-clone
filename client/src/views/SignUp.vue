@@ -14,9 +14,10 @@ import {
   XCircleIcon,
 } from '@heroicons/vue/24/outline'
 import { twMerge } from 'tailwind-merge'
-import { useAuth, useEmailValidation, useUsernameValidation } from '@/composables/useAuth'
+import { useEmailValidation, useUsernameValidation } from '@/composables/useValidation'
 import LoadingSpinner from '@/components/LoadingSpinner.vue'
 import { useDebounceFn } from '@vueuse/core'
+import { useAuthStore } from '@/stores/auth'
 
 const form = ref({
   username: '',
@@ -96,7 +97,7 @@ const { r$ } = useRegle(
   },
   { lazy: true },
 )
-const { register, isRegistering } = useAuth()
+const { register, isRegistering } = useAuthStore()
 
 const {
   data: emailValidation,
@@ -128,7 +129,6 @@ const submit = async () => {
   await r$.$validate()
 
   if (!r$.$invalid && !(usernameError.value || emailError.value)) {
-    console.log('Form is valid!', form.value)
     register(form.value)
   }
 }
