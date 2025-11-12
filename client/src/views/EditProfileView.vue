@@ -13,14 +13,17 @@ import EditButtonModal from '@/components/EditButtonModal.vue'
 import AddLinkModal from '@/components/AddLinkModal.vue'
 import EditLinkModal from '@/components/EditLinkModal.vue'
 import ProfileImageModal from '@/components/ProfileImageModal.vue'
+import Skeleton from '@/components/Skeleton.vue'
+import { useConfirm } from '@/composables/useConfirm'
 
-const { links, buttons, deleteLink, isDeleting } = useLinks()
+const { links, buttons, deleteLink, isDeleting, isLoading } = useLinks()
 const showAddButtonModal = ref(false)
 const showEditButtonModal = ref(false)
 const showAddLinkModal = ref(false)
 const showEditLinkModal = ref(false)
 const showProfileImageModal = ref(false)
 const selectedLink = ref<Link | null>(null)
+const { confirm } = useConfirm()
 
 // Create a reactive list for draggable UI
 const userButtons = ref<Link[]>([])
@@ -46,10 +49,6 @@ const editLink = (link: Link) => {
   showEditLinkModal.value = true
 }
 
-const deleteLinkFunc = async (id: number) => {
-  await deleteLink(id)
-}
-
 const closeEditButtonModal = () => {
   showEditButtonModal.value = false
   selectedLink.value = null
@@ -58,6 +57,17 @@ const closeEditButtonModal = () => {
 const closeEditLinkModal = () => {
   showEditLinkModal.value = false
   selectedLink.value = null
+}
+
+const handleDelete = (id: number) => {
+  confirm({
+    title: 'Delete Item',
+    message: 'Are you sure?',
+    variant: 'danger',
+    onConfirm: async () => {
+      await deleteLink(id)
+    },
+  })
 }
 </script>
 
@@ -106,12 +116,17 @@ const closeEditLinkModal = () => {
         </div>
 
         <div class="my-4">
+          <Skeleton v-if="isLoading" />
+          <div v-else-if="userButtons?.length === 0">
+            <h2 class="text-center">No Links present!</h2>
+          </div>
           <draggableComponent
             v-model="userButtons"
             tag="ul"
             item-key="id"
             handle=".drag-handle"
             class="space-y-3"
+            v-else
           >
             <template #item="{ element: button }">
               <li
@@ -147,7 +162,7 @@ const closeEditLinkModal = () => {
                       <PencilIcon class="w-5" />
                     </template>
                   </IconButton>
-                  <IconButton :disabled="isDeleting" :onClick="() => deleteLinkFunc(button.id)">
+                  <IconButton :disabled="isDeleting" :onClick="() => handleDelete(button.id)">
                     <template #icon>
                       <TrashIcon class="w-5" />
                     </template>
@@ -170,13 +185,19 @@ const closeEditLinkModal = () => {
             </template>
           </IconButton>
         </div>
+
         <div class="my-4">
+          <Skeleton v-if="isLoading" />
+          <div v-else-if="userLinks?.length === 0">
+            <h2 class="text-center">No Links present!</h2>
+          </div>
           <draggableComponent
             v-model="userLinks"
             tag="ul"
             item-key="id"
             handle=".drag-handle"
             class="space-y-3"
+            v-else
           >
             <template #item="{ element: link }">
               <li
@@ -210,7 +231,7 @@ const closeEditLinkModal = () => {
                       <PencilIcon class="w-5" />
                     </template>
                   </IconButton>
-                  <IconButton :disabled="isDeleting" :onClick="() => deleteLinkFunc(link.id)">
+                  <IconButton :disabled="isDeleting" :onClick="() => handleDelete(link.id)">
                     <template #icon>
                       <TrashIcon class="w-5" />
                     </template>
