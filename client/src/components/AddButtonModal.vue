@@ -11,11 +11,11 @@ import {
   ListboxOption,
   ListboxOptions,
 } from '@headlessui/vue'
-import { ref, computed, watch } from 'vue'
+import { ref, computed } from 'vue'
 import { ChevronUpDownIcon, CheckIcon } from '@heroicons/vue/20/solid'
 import { SOCIAL_PLATFORMS } from '@/shared/config'
 import Button from './Button.vue'
-import { LinkType, type LinkCreate, type SocialPlatform } from '@/shared/types'
+import { LinkType, type LinkCreate } from '@/shared/types'
 import { useLinks } from '@/composables/useLinks'
 
 interface Props {
@@ -25,14 +25,14 @@ interface Props {
 
 const props = defineProps<Props>()
 const { buttons, createLink, isCreating } = useLinks()
-const initialValue = {
+const getInitialValue = () => ({
   url: '',
   is_active: true,
   title: '',
   link_type: LinkType.BUTTON,
   position: buttons.value?.length ? buttons.value?.length + 1 : 1,
-}
-const newButton = ref<LinkCreate>(initialValue)
+})
+const newButton = ref<LinkCreate>(getInitialValue())
 
 const platformOptions = Object.entries(SOCIAL_PLATFORMS).map(([key, platform]) => ({
   value: key,
@@ -50,7 +50,7 @@ const addButton = async () => {
     title: selectedOption.value?.label ?? '',
   }
   await createLink(newLink)
-  newButton.value = initialValue
+  newButton.value = getInitialValue()
   props.onClose()
 }
 </script>

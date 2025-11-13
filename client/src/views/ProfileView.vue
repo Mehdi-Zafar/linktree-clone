@@ -6,16 +6,17 @@ import { SOCIAL_PLATFORMS } from '@/shared/config'
 import { Link as LinkIcon } from 'lucide-vue-next'
 import { RouterLink } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
+import Skeleton from '@/components/Skeleton.vue'
 
 // const { links, buttons } = useLinks()
 // const
 const { isAuthenticated } = useAuthStore()
-const { links, buttons } = usePublicLinks('john_doe')
+const { links, buttons, isLoading } = usePublicLinks('john_doe')
 </script>
 
 <template>
-  <div class="relative">
-    <div class="relative max-w-xl h-64 mx-auto">
+  <div class="relative max-w-xl mx-auto">
+    <div class="relative h-64">
       <img
         :src="profileImg"
         alt=""
@@ -34,20 +35,31 @@ const { links, buttons } = usePublicLinks('john_doe')
       <h1 class="text-2xl font-semibold">Alex Ferguson</h1>
       <p class="text-base">A person located in Sydney, Australia.</p>
       <div class="flex items-center justify-center gap-4">
-        <a v-for="button in buttons" :href="'//' + button.url" target="_blank">
-          <div
-            class="bg-emerald-500 dark:bg-emerald-600 w-16 h-16 rounded-full flex items-center justify-center cursor-pointer hover:scale-110 duration-250"
-          >
-            <component
-              v-if="button.social_platform"
-              :is="SOCIAL_PLATFORMS[button.social_platform]?.icon"
-              class="w-8 text-lightText"
-            />
-          </div>
-        </a>
+        <template v-if="isLoading">
+          <Skeleton />
+        </template>
+        <template v-else-if="buttons?.length > 0">
+          <a v-for="button in buttons" :href="'//' + button.url" target="_blank">
+            <div
+              class="bg-emerald-500 dark:bg-emerald-600 w-16 h-16 rounded-full flex items-center justify-center cursor-pointer hover:scale-110 duration-250"
+            >
+              <component
+                v-if="button.social_platform"
+                :is="SOCIAL_PLATFORMS[button.social_platform]?.icon"
+                class="w-8 text-lightText"
+              />
+            </div>
+          </a>
+        </template>
       </div>
 
-      <div class="grid grid-cols-1 gap-x-8 gap-y-5 min-w-lg mt-2">
+      <template v-if="isLoading">
+        <Skeleton />
+      </template>
+      <div
+        v-else-if="links?.length > 0"
+        class="grid grid-cols-2 justify-between gap-x-8 gap-y-5 min-w-lg mt-2"
+      >
         <a v-for="link in links" :href="'//' + link.url" target="_blank">
           <div
             class="bg-emerald-500 dark:bg-emerald-600 flex items-center gap-4 w-full rounded-lg py-2 px-2 cursor-pointer hover:scale-105 duration-250"
@@ -55,7 +67,7 @@ const { links, buttons } = usePublicLinks('john_doe')
             <span class="w-10 h-10 text-lightText flex justify-center items-center rounded-lg"
               ><LinkIcon class="w-6"
             /></span>
-            <h4 class="flex-1 text-lightText">{{ link.title }}</h4>
+            <h4 class="flex-1 text-lightText line-clamp-1">{{ link.title }}</h4>
           </div>
         </a>
       </div>

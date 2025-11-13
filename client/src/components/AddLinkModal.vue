@@ -14,20 +14,20 @@ interface Props {
 const props = defineProps<Props>()
 const { createLink, isCreating, links } = useLinks()
 
-const initialValue = {
+const getInitialValue = () => ({
   title: '',
   description: '',
   is_active: true,
   url: '',
   link_type: LinkType.LINK,
   position: links.value?.length ? links.value?.length + 1 : 1,
-}
-const newLink = ref<LinkCreate>(initialValue)
+})
+const newLink = ref<LinkCreate>(getInitialValue())
 
 const addLink = async () => {
   if (!newLink.value.title) return
   await createLink(newLink.value)
-  newLink.value = initialValue
+  newLink.value = getInitialValue()
   props.onClose()
 }
 </script>

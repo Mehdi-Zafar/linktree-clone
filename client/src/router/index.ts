@@ -99,7 +99,7 @@ router.beforeEach(async (to, from, next) => {
 
   // Check if route is for guests only (login/register)
   if (to.meta.requiresGuest && authStore.isAuthenticated) {
-    next(`/profile`)
+    next(`/profile/${authStore.user?.username}`)
     return
   }
 

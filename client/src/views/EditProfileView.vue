@@ -3,9 +3,9 @@ import profileImg from '@/assets/images/profile.jpg'
 import IconButton from '@/components/IconButton.vue'
 import { useLinks } from '@/composables/useLinks'
 import { SOCIAL_PLATFORMS } from '@/shared/config'
-import { type Link } from '@/shared/types'
+import { type Link, type LinkReorder } from '@/shared/types'
 import { PencilIcon, PlusCircleIcon, TrashIcon } from '@heroicons/vue/24/outline'
-import { watchEffect } from 'vue'
+import { watchEffect, computed } from 'vue'
 import { ref } from 'vue'
 import draggableComponent from 'vuedraggable'
 import AddButtonModal from '@/components/AddButtonModal.vue'
@@ -15,8 +15,9 @@ import EditLinkModal from '@/components/EditLinkModal.vue'
 import ProfileImageModal from '@/components/ProfileImageModal.vue'
 import Skeleton from '@/components/Skeleton.vue'
 import { useConfirm } from '@/composables/useConfirm'
+import Button from '@/components/Button.vue'
 
-const { links, buttons, deleteLink, isDeleting, isLoading } = useLinks()
+const { buttons, links, deleteLink, reorderLinks, isDeleting, isLoading, isReordering } = useLinks()
 const showAddButtonModal = ref(false)
 const showEditButtonModal = ref(false)
 const showAddLinkModal = ref(false)
@@ -25,19 +26,81 @@ const showProfileImageModal = ref(false)
 const selectedLink = ref<Link | null>(null)
 const { confirm } = useConfirm()
 
-// Create a reactive list for draggable UI
+// Create reactive lists for draggable UI
 const userButtons = ref<Link[]>([])
 const userLinks = ref<Link[]>([])
 
 // ✅ Watch API data and populate when ready
 watchEffect(() => {
   if (buttons.value && buttons.value.length) {
-    userButtons.value = [...buttons.value]
+    userButtons.value = [...buttons.value].sort((a, b) => a.position - b.position)
   }
   if (links.value && links.value.length) {
-    userLinks.value = [...links.value]
+    userLinks.value = [...links.value].sort((a, b) => a.position - b.position)
   }
 })
+
+// ✅ Check if order has changed for buttons
+const hasButtonsOrderChanged = computed(() => {
+  if (!buttons.value || userButtons.value.length !== buttons.value.length) {
+    return false
+  }
+
+  // Compare IDs in order
+  const originalOrder = [...buttons.value].sort((a, b) => a.position - b.position).map((b) => b.id)
+
+  const currentOrder = userButtons.value.map((b) => b.id)
+
+  return JSON.stringify(originalOrder) !== JSON.stringify(currentOrder)
+})
+
+// ✅ Check if order has changed for links
+const hasLinksOrderChanged = computed(() => {
+  if (!links.value || userLinks.value.length !== links.value.length) {
+    return false
+  }
+
+  // Compare IDs in order
+  const originalOrder = [...links.value].sort((a, b) => a.position - b.position).map((l) => l.id)
+
+  const currentOrder = userLinks.value.map((l) => l.id)
+
+  return JSON.stringify(originalOrder) !== JSON.stringify(currentOrder)
+})
+
+// ✅ Save buttons reorder
+const saveButtonsOrder = async () => {
+  const reorderData: LinkReorder[] = userButtons.value.map((button, index) => ({
+    link_id: button.id,
+    new_position: index,
+  }))
+
+  await reorderLinks(reorderData)
+}
+
+// ✅ Save links reorder
+const saveLinksOrder = async () => {
+  const reorderData: LinkReorder[] = userLinks.value.map((link, index) => ({
+    link_id: link.id,
+    new_position: index,
+  }))
+
+  await reorderLinks(reorderData)
+}
+
+// ✅ Cancel buttons reorder
+const cancelButtonsReorder = () => {
+  if (buttons.value) {
+    userButtons.value = [...buttons.value].sort((a, b) => a.position - b.position)
+  }
+}
+
+// ✅ Cancel links reorder
+const cancelLinksReorder = () => {
+  if (links.value) {
+    userLinks.value = [...links.value].sort((a, b) => a.position - b.position)
+  }
+}
 
 const editButton = (link: Link) => {
   selectedLink.value = link
@@ -102,6 +165,7 @@ const handleDelete = (id: number) => {
         </IconButton>
       </div>
 
+      <!-- BUTTONS SECTION -->
       <div class="min-w-xl mt-16 mb-8">
         <div class="flex justify-between items-center">
           <h2 class="text-left text-2xl">Buttons</h2>
@@ -118,61 +182,75 @@ const handleDelete = (id: number) => {
         <div class="my-4">
           <Skeleton v-if="isLoading" />
           <div v-else-if="userButtons?.length === 0">
-            <h2 class="text-center">No Links present!</h2>
+            <h2 class="text-center">No Buttons present!</h2>
           </div>
-          <draggableComponent
-            v-model="userButtons"
-            tag="ul"
-            item-key="id"
-            handle=".drag-handle"
-            class="space-y-3"
-            v-else
-          >
-            <template #item="{ element: button }">
-              <li
-                class="flex items-center gap-3 bg-white dark:bg-gray-800 p-3 rounded-lg cursor-default"
-              >
-                <!-- Drag handle (only this part triggers drag) -->
-                <span
-                  class="drag-handle cursor-grab active:cursor-grabbing text-gray-500 dark:text-gray-400"
-                  title="Drag to reorder"
+          <div v-else>
+            <draggableComponent
+              v-model="userButtons"
+              tag="ul"
+              item-key="id"
+              handle=".drag-handle"
+              class="space-y-3"
+            >
+              <template #item="{ element: button }">
+                <li
+                  class="flex items-center gap-3 bg-white dark:bg-gray-800 p-3 rounded-lg cursor-default"
                 >
-                  ⋮⋮
-                </span>
+                  <!-- Drag handle -->
+                  <span
+                    class="drag-handle cursor-grab active:cursor-grabbing text-gray-500 dark:text-gray-400"
+                    title="Drag to reorder"
+                  >
+                    ⋮⋮
+                  </span>
 
-                <!-- Platform icon -->
-                <component
-                  :is="SOCIAL_PLATFORMS[button.social_platform]?.icon"
-                  class="w-5 h-5 text-emerald-500"
-                />
+                  <!-- Platform icon -->
+                  <component
+                    :is="SOCIAL_PLATFORMS[button.social_platform]?.icon"
+                    class="w-5 h-5 text-emerald-500"
+                  />
 
-                <!-- Platform name -->
-                <span
-                  class="font-medium flex-1 flex items-center gap-2 text-gray-900 dark:text-gray-100"
-                >
-                  {{ SOCIAL_PLATFORMS[button.social_platform]?.name }}
-                  <span class="green-badge" v-if="button.is_active">Active</span>
-                  <span class="red-badge" v-else>Inactive</span>
-                </span>
+                  <!-- Platform name -->
+                  <span
+                    class="font-medium flex-1 flex items-center gap-2 text-gray-900 dark:text-gray-100"
+                  >
+                    {{ SOCIAL_PLATFORMS[button.social_platform]?.name }}
+                    <span class="green-badge" v-if="button.is_active">Active</span>
+                    <span class="red-badge" v-else>Inactive</span>
+                  </span>
 
-                <!-- Link -->
-                <div class="flex items-center gap-2">
-                  <IconButton :onClick="() => editButton(button)">
-                    <template #icon>
-                      <PencilIcon class="w-5" />
-                    </template>
-                  </IconButton>
-                  <IconButton :disabled="isDeleting" :onClick="() => handleDelete(button.id)">
-                    <template #icon>
-                      <TrashIcon class="w-5" />
-                    </template>
-                  </IconButton>
-                </div>
-              </li>
-            </template>
-          </draggableComponent>
+                  <!-- Actions -->
+                  <div class="flex items-center gap-2">
+                    <IconButton :onClick="() => editButton(button)">
+                      <template #icon>
+                        <PencilIcon class="w-5" />
+                      </template>
+                    </IconButton>
+                    <IconButton :disabled="isDeleting" :onClick="() => handleDelete(button.id)">
+                      <template #icon>
+                        <TrashIcon class="w-5" />
+                      </template>
+                    </IconButton>
+                  </div>
+                </li>
+              </template>
+            </draggableComponent>
+
+            <!-- ✅ Save/Cancel Buttons for Buttons Section -->
+            <div v-if="hasButtonsOrderChanged" class="mt-4 flex justify-end gap-3 p-4">
+              <Button
+                label="Cancel"
+                :onClick="cancelButtonsReorder"
+                :disabled="isReordering"
+                outline
+              />
+              <Button label="Save" :onClick="saveButtonsOrder" :loading="isReordering" />
+            </div>
+          </div>
         </div>
       </div>
+
+      <!-- LINKS SECTION -->
       <div class="min-w-xl my-8">
         <div class="flex justify-between items-center">
           <h2 class="text-left text-2xl">Links</h2>
@@ -191,57 +269,74 @@ const handleDelete = (id: number) => {
           <div v-else-if="userLinks?.length === 0">
             <h2 class="text-center">No Links present!</h2>
           </div>
-          <draggableComponent
-            v-model="userLinks"
-            tag="ul"
-            item-key="id"
-            handle=".drag-handle"
-            class="space-y-3"
-            v-else
-          >
-            <template #item="{ element: link }">
-              <li
-                class="flex items-center gap-3 bg-white dark:bg-gray-800 p-3 rounded-lg cursor-default"
-              >
-                <!-- Drag handle (only this part triggers drag) -->
-                <span
-                  class="drag-handle cursor-grab active:cursor-grabbing text-gray-500 dark:text-gray-400"
-                  title="Drag to reorder"
+          <div v-else>
+            <draggableComponent
+              v-model="userLinks"
+              tag="ul"
+              item-key="id"
+              handle=".drag-handle"
+              class="space-y-3"
+            >
+              <template #item="{ element: link }">
+                <li
+                  class="flex items-center gap-3 bg-white dark:bg-gray-800 p-3 rounded-lg cursor-default"
                 >
-                  ⋮⋮
-                </span>
+                  <!-- Drag handle -->
+                  <span
+                    class="drag-handle cursor-grab active:cursor-grabbing text-gray-500 dark:text-gray-400"
+                    title="Drag to reorder"
+                  >
+                    ⋮⋮
+                  </span>
 
-                <!-- Platform icon -->
-                <component
-                  :is="SOCIAL_PLATFORMS[link.social_platform]?.icon"
-                  class="w-5 h-5 text-emerald-500"
-                />
+                  <!-- Platform icon -->
+                  <component
+                    :is="SOCIAL_PLATFORMS[link.social_platform]?.icon"
+                    class="w-5 h-5 text-emerald-500"
+                  />
 
-                <!-- Platform name -->
-                <span class="font-medium flex-1 text-gray-900 dark:text-gray-100">
-                  {{ link.title }}
-                  <span class="green-badge" v-if="link.is_active">Active</span>
-                  <span class="red-badge" v-else>Inactive</span>
-                </span>
+                  <!-- Platform name -->
+                  <span
+                    class="font-medium flex-1 flex items-center gap-2 text-gray-900 dark:text-gray-100"
+                  >
+                    {{ link.title }}
+                    <span class="green-badge" v-if="link.is_active">Active</span>
+                    <span class="red-badge" v-else>Inactive</span>
+                  </span>
 
-                <!-- Link -->
-                <div class="flex items-center gap-2">
-                  <IconButton :onClick="() => editLink(link)">
-                    <template #icon>
-                      <PencilIcon class="w-5" />
-                    </template>
-                  </IconButton>
-                  <IconButton :disabled="isDeleting" :onClick="() => handleDelete(link.id)">
-                    <template #icon>
-                      <TrashIcon class="w-5" />
-                    </template>
-                  </IconButton>
-                </div>
-              </li>
-            </template>
-          </draggableComponent>
+                  <!-- Actions -->
+                  <div class="flex items-center gap-2">
+                    <IconButton :onClick="() => editLink(link)">
+                      <template #icon>
+                        <PencilIcon class="w-5" />
+                      </template>
+                    </IconButton>
+                    <IconButton :disabled="isDeleting" :onClick="() => handleDelete(link.id)">
+                      <template #icon>
+                        <TrashIcon class="w-5" />
+                      </template>
+                    </IconButton>
+                  </div>
+                </li>
+              </template>
+            </draggableComponent>
+
+            <!-- ✅ Save/Cancel Buttons for Links Section -->
+
+            <div v-if="hasLinksOrderChanged" class="mt-4 flex gap-3 p-4">
+              <Button
+                label="Cancel"
+                :onClick="cancelLinksReorder"
+                :disabled="isReordering"
+                outline
+              />
+              <Button label="Save" :onClick="saveLinksOrder" :loading="isReordering" />
+            </div>
+          </div>
         </div>
       </div>
+
+      <!-- Modals -->
       <AddButtonModal :show="showAddButtonModal" :on-close="() => (showAddButtonModal = false)" />
       <EditButtonModal
         v-if="selectedLink"

@@ -9,6 +9,7 @@ import {
   type Link,
 } from '@/shared/types'
 import { useAuthStore } from '@/stores/auth'
+import { showToast } from '@/shared/utils'
 
 /**
  * Composable for managing authenticated user's links
@@ -50,6 +51,10 @@ export function useLinks() {
         return [...oldLinks, newLink]
       })
       queryClient.invalidateQueries({ queryKey: ['publicLinks', user?.username] })
+      showToast('Link Created!', 'success')
+    },
+    onError: () => {
+      showToast('Creation failed!', 'error')
     },
   })
 
@@ -63,6 +68,10 @@ export function useLinks() {
         return oldLinks.map((link) => (link.id === updatedLink.id ? updatedLink : link))
       })
       queryClient.invalidateQueries({ queryKey: ['publicLinks', user?.username] })
+      showToast('Link updated!', 'success')
+    },
+    onError: () => {
+      showToast('Update Failed!', 'error')
     },
   })
 
@@ -76,6 +85,10 @@ export function useLinks() {
         return oldLinks.filter((link) => link.id !== deletedId)
       })
       queryClient.invalidateQueries({ queryKey: ['publicLinks', user?.username] })
+      showToast('Link Deleted!', 'success')
+    },
+    onError: () => {
+      showToast('Delete failed!', 'error')
     },
   })
 
@@ -85,6 +98,11 @@ export function useLinks() {
     onSuccess: (data) => {
       // Update cache immediately with new data
       queryClient.setQueryData(['myLinks'], data)
+      queryClient.invalidateQueries({ queryKey: ['publicLinks', user?.username] })
+      showToast('Links Reordered!', 'success')
+    },
+    onError: () => {
+      showToast('Reorder failed!', 'error')
     },
   })
 
@@ -138,7 +156,7 @@ export function useLinks() {
     createLink: createMutation.mutateAsync,
     updateLink: (id: number, data: LinkUpdate) => updateMutation.mutateAsync({ id, data }),
     deleteLink: deleteMutation.mutateAsync,
-    reorderLinks: reorderMutation.mutate,
+    reorderLinks: reorderMutation.mutateAsync,
     toggleActive,
     moveLink,
     refetch,
