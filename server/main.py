@@ -1,10 +1,9 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from routers import auth_router,users_router,profiles_router,links_router
-from database import engine
-import models
+from routers import auth_router, users_router, profiles_router, links_router
+from config import get_settings
 
-models.Base.metadata.create_all(bind=engine)
+settings = get_settings()
 
 app = FastAPI(
     title="Linktree Clone API",
@@ -15,7 +14,7 @@ app = FastAPI(
 # CORS middleware
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173", "http://localhost:3000"],  # Change this in production
+    allow_origins=settings.BACKEND_CORS_ORIGINS,  # Use from config
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
