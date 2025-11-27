@@ -16,6 +16,7 @@ import ProfileImageModal from '@/components/ProfileImageModal.vue'
 import Skeleton from '@/components/Skeleton.vue'
 import { useConfirm } from '@/composables/useConfirm'
 import Button from '@/components/Button.vue'
+import { useAuthStore } from '@/stores/auth'
 
 const { buttons, links, deleteLink, reorderLinks, isDeleting, isLoading, isReordering } = useLinks()
 const showAddButtonModal = ref(false)
@@ -25,6 +26,7 @@ const showEditLinkModal = ref(false)
 const showProfileImageModal = ref(false)
 const selectedLink = ref<Link | null>(null)
 const { confirm } = useConfirm()
+const authStore = useAuthStore()
 
 // Create reactive lists for draggable UI
 const userButtons = ref<Link[]>([])
@@ -136,25 +138,9 @@ const handleDelete = (id: number) => {
 
 <template>
   <div class="relative">
-    <div class="relative max-w-xl h-64 mx-auto">
-      <img
-        :src="profileImg"
-        alt=""
-        class="w-full h-full object-cover brightness-75 rounded-lg mt-0.5"
-      />
-      <IconButton btnClass="absolute top-4 right-4 w-fit">
-        <template #icon>
-          <PencilIcon class="w-5" />
-        </template>
-      </IconButton>
-    </div>
-    <div class="relative -top-16 flex flex-col items-center justify-center gap-4">
+    <div class="relative flex flex-col items-center justify-center gap-4 mt-8">
       <div class="relative">
-        <img
-          src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80"
-          alt=""
-          class="w-32 h-32 rounded-full"
-        />
+        <img :src="authStore.user?.avatar_url ?? ''" alt="" class="w-32 h-32 rounded-full" />
         <IconButton
           btnClass="absolute top-0 right-0 w-fit"
           :onClick="() => (showProfileImageModal = true)"

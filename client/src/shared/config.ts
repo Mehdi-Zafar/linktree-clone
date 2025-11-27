@@ -165,3 +165,6 @@ export const validatePlatformUrl = (platform: string, url: string): boolean => {
   if (!config.urlPattern) return true // No pattern means any URL is valid
   return config.urlPattern.test(url)
 }
+
+export const dummy_avatar =
+  'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80'

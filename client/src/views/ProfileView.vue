@@ -4,36 +4,44 @@ import Button from '@/components/Button.vue'
 import { useLinks, usePublicLinks } from '@/composables/useLinks'
 import { SOCIAL_PLATFORMS } from '@/shared/config'
 import { Link as LinkIcon } from 'lucide-vue-next'
-import { RouterLink } from 'vue-router'
+import { RouterLink, useRoute } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import Skeleton from '@/components/Skeleton.vue'
+import { usePublicProfile } from '@/composables/useUsers'
+import { computed } from 'vue'
 
 // const { links, buttons } = useLinks()
 // const
-const { isAuthenticated } = useAuthStore()
-const { links, buttons, isLoading } = usePublicLinks('john_doe')
+const { isAuthenticated,user } = useAuthStore()
+const isCurrentUser = computed(()=>isAuthenticated && user?.username === username)
+const route = useRoute()
+const username =
+  (Array.isArray(route.params.username)
+    ? route.params.username[0]
+    : route.params.username !== undefined
+      ? route.params.username
+      : '') ?? ''
+const { links, buttons, isLoading } = usePublicLinks(username)
+const { profile } = usePublicProfile(username)
+
 </script>
 
 <template>
   <div class="relative max-w-xl mx-auto">
-    <div class="relative h-64">
-      <img
+    <div class="relative">
+      <!-- <img
         :src="profileImg"
         alt=""
         class="w-full h-full object-cover brightness-75 rounded-lg mt-0.5"
-      />
-      <RouterLink v-if="isAuthenticated" to="/profile/edit" class="absolute top-4 right-4 w-fit"
+      /> -->
+    </div>
+    <div class="relative flex flex-col items-center justify-center gap-4 mt-8">
+      <img :src="profile?.avatar_url ?? ''" alt="" class="w-32 h-32 rounded-full" />
+      <RouterLink v-if="isCurrentUser" to="/profile/edit" class="w-fit"
         ><Button label="Edit Profile"
       /></RouterLink>
-    </div>
-    <div class="relative -top-16 flex flex-col items-center justify-center gap-4">
-      <img
-        src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80"
-        alt=""
-        class="w-32 h-32 rounded-full"
-      />
-      <h1 class="text-2xl font-semibold">Alex Ferguson</h1>
-      <p class="text-base">A person located in Sydney, Australia.</p>
+      <h1 class="text-2xl font-semibold">{{ profile?.full_name }}</h1>
+      <p class="text-base">{{ profile?.bio }}</p>
       <div class="flex items-center justify-center gap-4">
         <template v-if="isLoading">
           <Skeleton />

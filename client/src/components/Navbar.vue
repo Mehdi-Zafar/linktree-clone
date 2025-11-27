@@ -18,9 +18,9 @@ import { storeToRefs } from 'pinia'
 
 const navigation = [
   { name: 'Home', href: '/', current: true },
-  { name: 'Pricing', href: '/pricing', current: false },
-  { name: 'About', href: '/about', current: false },
-  { name: 'Contact', href: '/contact', current: false },
+  // { name: 'Pricing', href: '/pricing', current: false },
+  // { name: 'About', href: '/about', current: false },
+  // { name: 'Contact', href: '/contact', current: false },
 ]
 const route = useRoute()
 const authStore = useAuthStore()
@@ -33,52 +33,29 @@ const { isAuthenticated, user } = storeToRefs(authStore)
     class="relative bg-navbarLight dark:bg-navbarDark shadow-md !mt-0 !ml-0 after:pointer-events-none after:absolute after:inset-x-0 after:bottom-0 after:h-px after:bg-white/10"
     v-slot="{ open }"
   >
-    <div class="mx-auto max-w-7xl px-2 sm:px-6 md:px-8 lg:px-0">
+    <div class="mx-auto max-w-7xl px-6 md:px-8 lg:px-0">
       <div class="relative flex h-16 items-center justify-between">
-        <div class="absolute inset-y-0 left-0 flex items-center sm:hidden">
-          <!-- Mobile menu button-->
-          <DisclosureButton
+        <!-- <div class="absolute inset-y-0 left-0 flex items-center sm:hidden"> -->
+        <!-- Mobile menu button-->
+        <!-- <DisclosureButton
             class="relative inline-flex items-center justify-center rounded-md p-2 text-gray-400 hover:bg-white/5 hover:text-white focus:outline-2 focus:-outline-offset-1 focus:outline-indigo-500"
           >
             <span class="absolute -inset-0.5" />
             <span class="sr-only">Open main menu</span>
             <Bars3Icon v-if="!open" class="block size-6" aria-hidden="true" />
             <XMarkIcon v-else class="block size-6" aria-hidden="true" />
-          </DisclosureButton>
-        </div>
-        <div class="flex flex-1 items-center justify-center sm:items-stretch sm:justify-start">
+          </DisclosureButton> -->
+        <!-- </div> -->
+        <div class="flex flex-1 items-stretch justify-start">
           <div class="flex shrink-0 items-center">
-            <img class="h-8 w-auto" :src="logo" alt="Your Company" />
-          </div>
-          <div class="hidden sm:ml-6 sm:block">
-            <div class="flex space-x-4">
-              <RouterLink
-                v-for="item in navigation"
-                :key="item.name"
-                :to="item.href"
-                :class="[
-                  route.path === item.href
-                    ? 'bg-emerald-500 text-lightText'
-                    : 'text-darkText dark:text-lightText hover:opacity-80',
-                  'rounded-full px-4 py-2 text-sm font-medium',
-                ]"
-                :aria-current="item.current ? 'page' : undefined"
-                >{{ item.name }}</RouterLink
-              >
-            </div>
+            <RouterLink to="/">
+              <img class="h-8 w-auto" :src="logo" alt="Your Company" />
+            </RouterLink>
           </div>
         </div>
         <div
           class="absolute inset-y-0 right-0 flex gap-2 items-center pr-2 sm:static sm:inset-auto sm:ml-6 sm:pr-0"
         >
-          <button
-            type="button"
-            class="relative rounded-full p-1 text-gray-400 hover:text-white focus:outline-2 focus:outline-offset-2 focus:outline-indigo-500"
-          >
-            <span class="absolute -inset-1.5" />
-            <span class="sr-only">View notifications</span>
-            <BellIcon class="size-6" aria-hidden="true" />
-          </button>
           <ThemeToggleButton />
 
           <!-- Profile dropdown -->
@@ -90,7 +67,7 @@ const { isAuthenticated, user } = storeToRefs(authStore)
               <span class="sr-only">Open user menu</span>
               <img
                 class="size-8 rounded-full bg-gray-800 outline -outline-offset-1 outline-white/10"
-                src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80"
+                :src="user?.avatar_url ?? ''"
                 alt=""
               />
             </MenuButton>

@@ -12,6 +12,9 @@ class Settings(BaseSettings):
     COOKIE_SECURE: bool
     COOKIE_SAMESITE: str
     BACKEND_CORS_ORIGINS: list = ["http://localhost:5173", "http://localhost:3000"]
+
+    SUPABASE_URL: str
+    SUPABASE_SERVICE_KEY: str
     class Config:
         env_file = ".env"
 

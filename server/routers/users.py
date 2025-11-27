@@ -1,12 +1,22 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status,UploadFile,File
 from sqlalchemy.orm import Session
 from typing import List
 from database import get_db
 import models
 import schemas
 from auth import get_current_active_user
+from supabase import create_client, Client
+from config import get_settings
+from datetime import datetime
 
 router = APIRouter(prefix="/users", tags=["Users"])
+settings = get_settings()
+
+# Initialize Supabase client with service role key
+supabase: Client = create_client(
+    settings.SUPABASE_URL,
+    settings.SUPABASE_SERVICE_KEY  # Service role key
+)
 
 @router.get("/", response_model=List[schemas.UserResponse])
 def get_all_users(
@@ -87,3 +97,89 @@ def delete_current_user(
     db.delete(current_user)
     db.commit()
     return None
+
+@router.post("/me/avatar/upload", response_model=schemas.UserResponse)
+async def upload_avatar(
+    file: UploadFile = File(...),
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(get_current_active_user)
+):
+    """
+    Upload avatar to Supabase Storage and update user's avatar_url
+    """
+    # Validate file type
+    allowed_types = ["image/jpeg", "image/jpg", "image/png", "image/webp","image/avif"]
+    if file.content_type not in allowed_types:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Only JPG, PNG, WebP and Avif images are allowed"
+        )
+    
+    # Validate file size (5MB)
+    file_size = 0
+    max_size = 5 * 1024 * 1024  # 5MB
+    contents = await file.read()
+    file_size = len(contents)
+    
+    if file_size > max_size:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="File size must be less than 5MB"
+        )
+    
+    try:
+        # Delete old avatar if exists
+        if current_user.avatar_url:
+            try:
+                # Extract path from URL
+                old_path = current_user.avatar_url.split('/linktree-files/')[-1]
+                supabase.storage.from_('linktree-files').remove([old_path])
+            except Exception as e:
+                print(f"Error deleting old avatar: {e}")
+        
+        # Generate unique filename
+        file_ext = file.filename.split('.')[-1]
+        filename = f"{current_user.id}/{int(datetime.now().timestamp())}.{file_ext}"
+        
+        # Upload to Supabase Storage
+        response = supabase.storage.from_('linktree-files').upload(
+            filename,
+            contents,
+            {"content-type": file.content_type}
+        )
+        
+        # Get public URL
+        public_url = supabase.storage.from_('linktree-files').get_public_url(filename)
+        
+        # Update user in database
+        current_user.avatar_url = public_url
+        db.commit()
+        db.refresh(current_user)
+        
+        return current_user
+        
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to upload avatar: {str(e)}"
+        )
+
+@router.delete("/me/avatar", response_model=schemas.UserResponse)
+def remove_avatar(
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(get_current_active_user)
+):
+    """Remove user's avatar"""
+    if current_user.avatar_url:
+        try:
+            # Extract path and delete from storage
+            path = current_user.avatar_url.split('/linktree-files/')[-1]
+            supabase.storage.from_('linktree-files').remove([path])
+        except Exception as e:
+            print(f"Error deleting avatar: {e}")
+    
+    current_user.avatar_url = None
+    db.commit()
+    db.refresh(current_user)
+    
+    return current_user
