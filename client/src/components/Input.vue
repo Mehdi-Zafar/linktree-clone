@@ -75,7 +75,7 @@ function toggleShowPassword() {
         />
       </template>
       <input
-        :type="isPassword && showPassword ? 'string' : type"
+        :type="isPassword && showPassword ? 'text' : type"
         :name="name"
         :id="id"
         :placeholder="placeholder"

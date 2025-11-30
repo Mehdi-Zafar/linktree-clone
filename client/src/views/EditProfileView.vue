@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import profileImg from '@/assets/images/profile.jpg'
 import IconButton from '@/components/IconButton.vue'
 import { useLinks } from '@/composables/useLinks'
 import { SOCIAL_PLATFORMS } from '@/shared/config'
@@ -17,6 +16,7 @@ import Skeleton from '@/components/Skeleton.vue'
 import { useConfirm } from '@/composables/useConfirm'
 import Button from '@/components/Button.vue'
 import { useAuthStore } from '@/stores/auth'
+import Avatar from '@/components/Avatar.vue'
 
 const { buttons, links, deleteLink, reorderLinks, isDeleting, isLoading, isReordering } = useLinks()
 const showAddButtonModal = ref(false)
@@ -140,7 +140,13 @@ const handleDelete = (id: number) => {
   <div class="relative">
     <div class="relative flex flex-col items-center justify-center gap-4 mt-8">
       <div class="relative">
-        <img :src="authStore.user?.avatar_url ?? ''" alt="" class="w-32 h-32 rounded-full" />
+        <Avatar
+          :src="authStore?.user?.avatar_url"
+          :name="authStore?.user?.full_name"
+          alt=""
+          class="w-32 h-32 rounded-full"
+          initials-class="text-3xl"
+        />
         <IconButton
           btnClass="absolute top-0 right-0 w-fit"
           :onClick="() => (showProfileImageModal = true)"
@@ -323,18 +329,18 @@ const handleDelete = (id: number) => {
       </div>
 
       <!-- Modals -->
-      <AddButtonModal :show="showAddButtonModal" :on-close="() => (showAddButtonModal = false)" />
+      <AddButtonModal :show="showAddButtonModal" @close="() => (showAddButtonModal = false)" />
       <EditButtonModal
         v-if="selectedLink"
         :show="showEditButtonModal"
-        :on-close="closeEditButtonModal"
+        @close="closeEditButtonModal"
         :selectedButton="selectedLink"
       />
-      <AddLinkModal :show="showAddLinkModal" :on-close="() => (showAddLinkModal = false)" />
+      <AddLinkModal :show="showAddLinkModal" @close="() => (showAddLinkModal = false)" />
       <EditLinkModal
         v-if="selectedLink"
         :show="showEditLinkModal"
-        :on-close="closeEditLinkModal"
+        @close="closeEditLinkModal"
         :selectedLink="selectedLink"
       />
       <ProfileImageModal

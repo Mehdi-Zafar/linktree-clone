@@ -33,7 +33,7 @@ export interface User {
   id: number
   email: string
   username: string
-  full_name: string | null
+  full_name: string
   bio: string | null
   avatar_url: string | null
   is_active: boolean
@@ -125,22 +125,22 @@ export interface Link {
 
 export interface LinkCreate {
   link_type?: LinkType
-  social_platform?: SocialPlatform
+  social_platform?: SocialPlatform | null
   title: string
   url: string
-  description?: string
-  thumbnail_url?: string
+  description?: string | null
+  thumbnail_url?: string | null
   position?: number
   is_active?: boolean
 }
 
 export interface LinkUpdate {
   link_type?: LinkType
-  social_platform?: SocialPlatform
+  social_platform?: SocialPlatform | null
   title?: string
   url?: string
-  description?: string
-  thumbnail_url?: string
+  description?: string | null
+  thumbnail_url?: string | null
   position?: number
   is_active?: boolean
 }
@@ -153,7 +153,7 @@ export interface LinkReorder {
 // ============ PUBLIC PROFILE TYPES ============
 export interface PublicUserProfile {
   username: string
-  full_name: string | null
+  full_name: string
   bio: string | null
   avatar_url: string | null
   profile: Profile | null

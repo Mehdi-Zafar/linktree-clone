@@ -82,7 +82,6 @@ const submit = async () => {
             @blur="r$.password.$touch()"
             :errorMessage="r$.password.$error ? r$.password.$errors[0] : null"
             :touched="r$.password.$dirty"
-            :isPassword="true"
           >
             <template #leftIcon>
               <LockClosedIcon class="inputIcon" />
@@ -94,7 +93,7 @@ const submit = async () => {
         </div>
 
         <div class="mt-5">
-          <Button label="Sign In" :onClick="submit" :loading="isLoggingIn" />
+          <Button label="Sign In" :loading="isLoggingIn" />
         </div>
       </form>
 

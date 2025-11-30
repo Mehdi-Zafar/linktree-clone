@@ -1,7 +1,5 @@
 <script setup lang="ts">
-import profileImg from '@/assets/images/profile.jpg'
 import Button from '@/components/Button.vue'
-import { useLinks, usePublicLinks } from '@/composables/useLinks'
 import { SOCIAL_PLATFORMS } from '@/shared/config'
 import { Link as LinkIcon } from 'lucide-vue-next'
 import { RouterLink, useRoute } from 'vue-router'
@@ -9,11 +7,10 @@ import { useAuthStore } from '@/stores/auth'
 import Skeleton from '@/components/Skeleton.vue'
 import { usePublicProfile } from '@/composables/useUsers'
 import { computed } from 'vue'
+import Avatar from '@/components/Avatar.vue'
 
-// const { links, buttons } = useLinks()
-// const
-const { isAuthenticated,user } = useAuthStore()
-const isCurrentUser = computed(()=>isAuthenticated && user?.username === username)
+const { isAuthenticated, user } = useAuthStore()
+const isCurrentUser = computed(() => isAuthenticated && user?.username === username)
 const route = useRoute()
 const username =
   (Array.isArray(route.params.username)
@@ -21,22 +18,14 @@ const username =
     : route.params.username !== undefined
       ? route.params.username
       : '') ?? ''
-const { links, buttons, isLoading } = usePublicLinks(username)
-const { profile } = usePublicProfile(username)
-
+const { profile, links, buttons, isLoading } = usePublicProfile(username)
 </script>
 
 <template>
   <div class="relative max-w-xl mx-auto">
-    <div class="relative">
-      <!-- <img
-        :src="profileImg"
-        alt=""
-        class="w-full h-full object-cover brightness-75 rounded-lg mt-0.5"
-      /> -->
-    </div>
     <div class="relative flex flex-col items-center justify-center gap-4 mt-8">
-      <img :src="profile?.avatar_url ?? ''" alt="" class="w-32 h-32 rounded-full" />
+      <!-- <img :src="profile?.avatar_url ?? ''" alt="" class="w-32 h-32 rounded-full" /> -->
+      <Avatar :src="profile?.avatar_url" :name="profile?.full_name" alt="" class="w-32 h-32 rounded-full" initials-class="text-3xl" />
       <RouterLink v-if="isCurrentUser" to="/profile/edit" class="w-fit"
         ><Button label="Edit Profile"
       /></RouterLink>
@@ -68,7 +57,7 @@ const { profile } = usePublicProfile(username)
         v-else-if="links?.length > 0"
         class="grid grid-cols-2 justify-between gap-x-8 gap-y-5 min-w-lg mt-2"
       >
-        <a v-for="link in links" :href="'//' + link.url" target="_blank">
+        <a v-for="link in links" :href="link.url" target="_blank">
           <div
             class="bg-emerald-500 dark:bg-emerald-600 flex items-center gap-4 w-full rounded-lg py-2 px-2 cursor-pointer hover:scale-105 duration-250"
           >

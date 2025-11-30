@@ -5,8 +5,6 @@ import SignUp from '@/views/SignUp.vue'
 import NotFound from '@/views/NotFound.vue'
 import AuthLayout from './layouts/AuthLayout.vue'
 import DefaultLayout from './layouts/DefaultLayout.vue'
-import PricingView from '@/views/PricingView.vue'
-import ContactView from '@/views/ContactView.vue'
 import ProfileView from '@/views/ProfileView.vue'
 import EditProfileView from '@/views/EditProfileView.vue'
 import { useAuthStore } from '@/stores/auth'
@@ -22,24 +20,6 @@ const router = createRouter({
           path: '',
           name: 'home',
           component: HomeView,
-        },
-        {
-          path: 'about',
-          name: 'about',
-          // route level code-splitting
-          // this generates a separate chunk (About.[hash].js) for this route
-          // which is lazy-loaded when the route is visited.
-          component: () => import('../views/AboutView.vue'),
-        },
-        {
-          path: 'pricing',
-          name: 'pricing',
-          component: PricingView,
-        },
-        {
-          path: 'contact',
-          name: 'contact',
-          component: ContactView,
         },
         {
           path: 'profile/:username',

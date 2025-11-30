@@ -50,7 +50,7 @@ export function useLinks() {
         if (!oldLinks) return [newLink]
         return [...oldLinks, newLink]
       })
-      queryClient.invalidateQueries({ queryKey: ['publicLinks', user?.username] })
+      queryClient.invalidateQueries({ queryKey: ['publicProfile', user?.username] })
       showToast('Link Created!', 'success')
     },
     onError: () => {
@@ -67,7 +67,7 @@ export function useLinks() {
         if (!oldLinks) return [updatedLink]
         return oldLinks.map((link) => (link.id === updatedLink.id ? updatedLink : link))
       })
-      queryClient.invalidateQueries({ queryKey: ['publicLinks', user?.username] })
+      queryClient.invalidateQueries({ queryKey: ['publicProfile', user?.username] })
       showToast('Link updated!', 'success')
     },
     onError: () => {
@@ -84,7 +84,7 @@ export function useLinks() {
         if (!oldLinks) return []
         return oldLinks.filter((link) => link.id !== deletedId)
       })
-      queryClient.invalidateQueries({ queryKey: ['publicLinks', user?.username] })
+      queryClient.invalidateQueries({ queryKey: ['publicProfile', user?.username] })
       showToast('Link Deleted!', 'success')
     },
     onError: () => {
@@ -98,7 +98,7 @@ export function useLinks() {
     onSuccess: (data) => {
       // Update cache immediately with new data
       queryClient.setQueryData(['myLinks'], data)
-      queryClient.invalidateQueries({ queryKey: ['publicLinks', user?.username] })
+      queryClient.invalidateQueries({ queryKey: ['publicProfile', user?.username] })
       showToast('Links Reordered!', 'success')
     },
     onError: () => {

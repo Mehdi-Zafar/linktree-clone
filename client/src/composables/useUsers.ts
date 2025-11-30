@@ -2,7 +2,7 @@
 import { computed, ref } from 'vue'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/vue-query'
 import { usersApi } from '@/api/users.api'
-import type { UserUpdate, PublicUserProfile, User } from '@/shared/types'
+import { type UserUpdate, type PublicUserProfile, type User, LinkType } from '@/shared/types'
 import { useAuthStore } from '@/stores/auth'
 import { showToast } from '@/shared/utils'
 
@@ -147,6 +147,11 @@ export function usePublicProfile(username: string) {
     return [...profile.value.links].sort((a, b) => a.position - b.position)
   })
 
+  // Computed: Active links only
+  const activeLinks = computed(() => {
+    return sortedLinks.value.filter((link) => link.is_active)
+  })
+
   // Computed: Profile metadata for SEO
   const metaData = computed(() => {
     if (!profile.value) return null
@@ -163,8 +168,17 @@ export function usePublicProfile(username: string) {
     return !error.value && !!profile.value
   })
 
+  const buttons = computed(() =>
+    activeLinks?.value?.filter((link) => link.link_type === LinkType.BUTTON),
+  )
+  const links = computed(() =>
+    activeLinks?.value?.filter((link) => link.link_type === LinkType.LINK),
+  )
+
   return {
     profile,
+    buttons,
+    links,
     sortedLinks,
     metaData,
     isProfileAvailable,
@@ -249,7 +263,7 @@ export function useAvatarUpload() {
       return null
     }
 
-    const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp','image/avif']
+    const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'image/avif']
     if (!allowedTypes.includes(file.type)) {
       showToast('Only JPG, PNG, WebP and Avif images are allowed', 'error')
       return null
@@ -268,6 +282,8 @@ export function useAvatarUpload() {
 
       // Update local store
       queryClient.setQueryData(['currentUser'], updatedUser)
+
+      queryClient.invalidateQueries({ queryKey: ['publicProfile', updatedUser.username] })
 
       uploadProgress.value = 100
       showToast('Avatar uploaded successfully', 'success')
@@ -292,6 +308,8 @@ export function useAvatarUpload() {
       // Update local store
       //   authStore.updateUser(updatedUser)
       queryClient.setQueryData(['currentUser'], updatedUser)
+
+      queryClient.invalidateQueries({ queryKey: ['publicProfile', updatedUser.username] })
 
       showToast('Avatar removed successfully', 'success')
     } catch (error: any) {

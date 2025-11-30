@@ -4,26 +4,28 @@ import LoadingSpinner from './LoadingSpinner.vue'
 
 defineProps<{
   label: string
-  type?: string
+  type?: 'button' | 'submit' | 'reset' | undefined
   disabled?: boolean
   btnClass?: string
   onClick?: () => void
   loading?: boolean
-  outline?:boolean
+  outline?: boolean
 }>()
 </script>
 
 <template>
   <button
-    type="submit"
+    :type="type ? type : 'submit'"
     :class="
       twMerge(
         'flex w-full justify-center items-center gap-2 cursor-pointer rounded-md px-3 py-1.5 text-sm/6 font-semibold text-lightText bg-emerald-500 hover:bg-emerald-600 transition-colors duration-200',
-        outline ? 'border text-emerald-500 bg-transparent hover:bg-transparent hover:opacity-80':'',
+        outline
+          ? 'border text-emerald-500 bg-transparent hover:bg-transparent hover:opacity-80'
+          : '',
         btnClass,
       )
     "
-    @click="onClick ? onClick() : null"
+    @click="onClick ? onClick() : undefined"
     :disabled="disabled || loading"
   >
     {{ label }}

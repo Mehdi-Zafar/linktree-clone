@@ -15,6 +15,7 @@ import Button from './Button.vue'
 import { RouterLink, useRoute } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { storeToRefs } from 'pinia'
+import Avatar from './Avatar.vue'
 
 const navigation = [
   { name: 'Home', href: '/', current: true },
@@ -65,10 +66,16 @@ const { isAuthenticated, user } = storeToRefs(authStore)
             >
               <span class="absolute -inset-1.5" />
               <span class="sr-only">Open user menu</span>
-              <img
+              <!-- <img
                 class="size-8 rounded-full bg-gray-800 outline -outline-offset-1 outline-white/10"
                 :src="user?.avatar_url ?? ''"
                 alt=""
+              /> -->
+              <Avatar
+                :src="user?.avatar_url"
+                :name="user?.full_name"
+                alt=""
+                class="size-8 rounded-full"
               />
             </MenuButton>
 

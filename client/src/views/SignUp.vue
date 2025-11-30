@@ -55,8 +55,6 @@ const emailError = computed(() => {
   return null
 })
 
-console.log(emailError)
-
 const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]).{8,}$/
 const usernameRegex = /^[a-zA-Z][a-zA-Z0-9_.-]*[a-zA-Z0-9]$|^[a-zA-Z]$/
 const specialCharacterRegex = /(?=.*[^A-Za-z0-9])/
@@ -215,7 +213,6 @@ const submit = async () => {
             @blur="r$.password.$touch()"
             :errorMessage="r$.password.$error ? r$.password.$errors[0] : null"
             :touched="r$.password.$dirty"
-            :isPassword="true"
           >
             <template #leftIcon>
               <LockClosedIcon class="inputIcon" />
@@ -262,7 +259,6 @@ const submit = async () => {
             @blur="r$.confirmPassword.$touch()"
             :errorMessage="r$.confirmPassword.$error ? r$.confirmPassword.$errors[0] : null"
             :touched="r$.confirmPassword.$dirty"
-            :isPassword="true"
           >
             <template #leftIcon>
               <LockClosedIcon class="inputIcon" />
@@ -271,7 +267,7 @@ const submit = async () => {
         </div>
 
         <div class="mt-5">
-          <Button label="Sign Up" :onClick="submit" :loading="isRegistering" />
+          <Button label="Sign Up" :loading="isRegistering" />
         </div>
       </form>
 

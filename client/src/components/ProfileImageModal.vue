@@ -30,7 +30,7 @@ const previewUrl = ref<string>('')
 const currentAvatar = computed(() => authStore.user?.avatar_url)
 
 // Handle file selection
-const handleFileSelect = (event: Event) => {debugger
+const handleFileSelect = (event: Event) => {
   const target = event.target as HTMLInputElement
   const file = target.files?.[0]
 
@@ -38,7 +38,6 @@ const handleFileSelect = (event: Event) => {debugger
 
   // Validate file type
   const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'image/avif']
-  console.log(file.type)
   if (!allowedTypes.includes(file.type)) {
     showToast('Only JPG, PNG, WebP and Avif images are allowed', 'error')
     target.value = ''
