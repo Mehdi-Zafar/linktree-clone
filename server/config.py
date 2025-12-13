@@ -12,11 +12,16 @@ class Settings(BaseSettings):
     COOKIE_SECURE: bool
     COOKIE_SAMESITE: str
     BACKEND_CORS_ORIGINS: list = ["http://localhost:5173","https://my-linktree-app27.netlify.app"]
+    BACKEND_CORS_ORIGINS: str
 
     SUPABASE_URL: str
     SUPABASE_SERVICE_KEY: str
     class Config:
         env_file = ".env"
+
+    @property
+    def cors_origins(self) -> list[str]:
+        return [origin.strip() for origin in self.BACKEND_CORS_ORIGINS.split(",")]
 
 @lru_cache()
 def get_settings():
