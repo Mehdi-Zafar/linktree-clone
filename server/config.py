@@ -11,7 +11,7 @@ class Settings(BaseSettings):
 
     COOKIE_SECURE: bool
     COOKIE_SAMESITE: str
-    BACKEND_CORS_ORIGINS: list = ["http://localhost:5173", "http://localhost:3000"]
+    BACKEND_CORS_ORIGINS: list = ["http://localhost:5173","https://my-linktree-app27.netlify.app"]
 
     SUPABASE_URL: str
     SUPABASE_SERVICE_KEY: str
