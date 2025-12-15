@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import Button from '@/components/Button.vue'
-import { computed, ref } from 'vue'
-import { RouterLink } from 'vue-router'
+import { computed, onMounted, ref } from 'vue'
+import { RouterLink, useRoute } from 'vue-router'
 import logo from '@/assets/images/linktree-logo-icon.png'
 import { useRegle } from '@regle/core'
 import { email, minLength, required, withMessage } from '@regle/rules'
@@ -19,6 +19,8 @@ import LoadingSpinner from '@/components/LoadingSpinner.vue'
 import { useDebounceFn } from '@vueuse/core'
 import { useAuthStore } from '@/stores/auth'
 
+const route = useRoute()
+const usernameFromQuery = ref(route.query.username)
 const form = ref({
   username: '',
   email: '',
@@ -122,6 +124,15 @@ const emailChange = useDebounceFn(async () => {
   await checkEmail()
   isEmailValid.value = !!emailValidation.value?.available
 }, 500)
+
+onMounted(() => {
+  // If username is present in query, set it in form and validate
+  if (usernameFromQuery.value) {
+    form.value.username = usernameFromQuery.value.toString()
+    r$.username.$touch()
+    usernameChange()
+  }
+})
 
 const submit = async () => {
   await r$.$validate()

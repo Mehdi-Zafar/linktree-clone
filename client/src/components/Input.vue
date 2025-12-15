@@ -57,7 +57,7 @@ function toggleShowPassword() {
 
 <template>
   <div :class="twMerge('space-y-0.5', containerClass)">
-    <label :for="id" :class="twMerge('inputLabel', labelClass)">{{ label }}</label>
+    <label v-if="!!label" :for="id" :class="twMerge('inputLabel', labelClass)">{{ label }}</label>
     <div class="relative">
       <slot name="leftIcon"></slot>
 

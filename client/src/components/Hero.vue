@@ -3,8 +3,26 @@ import { ref } from 'vue'
 import Button from './Button.vue'
 import Input from './Input.vue'
 import heroImg from '@/assets/images/linktree-logo-icon.png'
+import { useRouter } from 'vue-router'
+import { showToast } from '@/shared/utils'
 
-const link = ref('linktree/')
+const link = ref('')
+const router = useRouter()
+
+function navigateToSignUp() {
+  if (link.value.trim() === '') {
+    showToast('Please enter a username', 'error')
+    return
+  }
+  if(link.value.length < 6){
+    showToast('Username must be at least 6 characters long', 'error')
+    return
+  }
+  router.push({
+    path: '/sign-up',
+    query: { username: link.value },
+  })
+}
 </script>
 
 <template>
@@ -13,10 +31,17 @@ const link = ref('linktree/')
       <h1 class="text-5xl font-extrabold text-emerald-500 uppercase leading-13">
         Everything you are. In one, simple link in bio.
       </h1>
-      <h5 class="text-base opacity-70">Share your links, social profiles, contact info and more on one page.</h5>
+      <h5 class="text-base opacity-70">
+        Share your links, social profiles, contact info and more on one page.
+      </h5>
       <div class="flex items-center gap-2 w-full">
-        <Input containerClass="w-full flex-1 max-w-sm" inputClass="py-2" :model-value="link" />
-        <Button label="Proceed" btnClass="py-2 w-fit" />
+        <div
+          class="w-full flex-1 max-w-sm flex items-center gap-1 py-2 border border-gray-300 dark:border-gray-700 rounded-md pl-3 text-sm"
+        >
+          <span class="opacity-70">linktree/</span>
+          <Input containerClass="w-full flex-1" inputClass="py-0 px-0 border-none" v-model="link" placeholder="Enter a username"/>
+        </div>
+        <Button label="Proceed" btnClass="py-2 w-fit" :onClick="navigateToSignUp" />
       </div>
     </div>
     <div class="col-span-3 col-start-9 flex justify-center items-center">
