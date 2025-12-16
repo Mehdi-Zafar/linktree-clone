@@ -30,7 +30,7 @@ class UsernameValidationResponse(BaseModel):
 class UserBase(BaseModel):
     email: EmailStr
     username: str = Field(..., min_length=3, max_length=50)
-    full_name: Optional[str] = Field(None, max_length=100)
+    full_name: str = Field(None, max_length=100)
     bio: Optional[str] = None
 
 class UserCreate(UserBase):

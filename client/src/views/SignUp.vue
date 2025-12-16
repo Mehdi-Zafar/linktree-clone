@@ -22,6 +22,7 @@ import { useAuthStore } from '@/stores/auth'
 const route = useRoute()
 const usernameFromQuery = ref(route.query.username)
 const form = ref({
+  full_name: '',
   username: '',
   email: '',
   password: '',
@@ -59,6 +60,7 @@ const emailError = computed(() => {
 
 const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]).{8,}$/
 const usernameRegex = /^[a-zA-Z][a-zA-Z0-9_.-]*[a-zA-Z0-9]$|^[a-zA-Z]$/
+const fullNameRegex = /^[a-zA-Z ]+$/
 const specialCharacterRegex = /(?=.*[^A-Za-z0-9])/
 const numberRegex = /(?=.*\d)/
 
@@ -66,6 +68,13 @@ const numberRegex = /(?=.*\d)/
 const { r$ } = useRegle(
   form,
   {
+    full_name: {
+      required: withMessage(required, 'Full name is required'),
+      complexity: withMessage((val) => {
+        if (!val) return false
+        return fullNameRegex.test(val?.toString())
+      }, 'Invalid Full Name'),
+    },
     username: {
       required: withMessage(required, 'Username is required'),
       minLength: withMessage(minLength(6), 'Username should be atleast 6 characters'),
@@ -160,6 +169,21 @@ const submit = async () => {
     <div class="mt-8 sm:mx-auto sm:w-full sm:max-w-sm">
       <form @submit.prevent="submit" method="POST">
         <div class="space-y-4">
+          <Input
+            name="full_name"
+            id="full_name"
+            type="full_name"
+            label="Full Name"
+            v-model="form.full_name"
+            placeholder="Enter your full name"
+            @blur="r$.full_name.$touch()"
+            :errorMessage="r$.full_name.$error ? r$.full_name.$errors[0] : null"
+            :touched="r$.full_name.$dirty"
+          >
+            <template #leftIcon>
+              <UserCircleIcon class="inputIcon" />
+            </template>
+          </Input>
           <Input
             name="username"
             id="username"
