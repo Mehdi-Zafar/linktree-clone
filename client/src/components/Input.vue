@@ -92,7 +92,7 @@ function toggleShowPassword() {
       />
     </div>
     <!-- show error only if touched & there is error -->
-    <p v-if="touched && errorMessage" class="text-red-500 text-sm mt-1">
+    <p v-if="touched && errorMessage" class="text-red-500 text-sm mt-1.5 italic">
       {{ errorMessage }}
     </p>
   </div>
