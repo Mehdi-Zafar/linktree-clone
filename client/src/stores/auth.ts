@@ -90,6 +90,29 @@ export const useAuthStore = defineStore('auth', () => {
     }
   }
 
+  const verifyEmailMutation = useMutation({
+  mutationFn: (token: string) => authApi.verifyEmail(token),
+  onSuccess: () => {
+    // Show success message
+    alert('Email verified successfully!')
+    // Redirect to dashboard
+    router.push('/')
+  },
+  onError: (error: any) => {
+    // Handle specific errors
+    if (error.response?.status === 400) {
+      alert('Invalid or expired verification link')
+    } else if (error.response?.status === 409) {
+      alert('Email already verified')
+    } else {
+      alert('Verification failed. Please try again.')
+    }
+    router.push('/')
+  },
+  retry: false,
+})
+
+
   // ============ RETURN ============
   return {
     // State
@@ -110,6 +133,7 @@ export const useAuthStore = defineStore('auth', () => {
     register: registerMutation.mutate,
     logout,
     refetchUser: userQuery.refetch,
+    verifyEmail: verifyEmailMutation.mutateAsync,
 
     // Mutation states
     isLoggingIn: computed(() => loginMutation.isPending.value),

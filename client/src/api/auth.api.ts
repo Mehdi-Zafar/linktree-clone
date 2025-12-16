@@ -65,4 +65,12 @@ export const authApi = {
     )
     return response.data
   },
+
+  // verify email
+  verifyEmail: async (token: string): Promise<void> => {
+    const response = await api.get<void>(`${BASE_URL}/verify-email`, {
+      params: { token },
+    })
+    return response.data
+  },
 }

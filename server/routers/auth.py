@@ -1,4 +1,4 @@
-from datetime import timedelta
+from datetime import datetime,timedelta
 from fastapi import APIRouter, Depends, HTTPException, status, Response, Request
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
@@ -14,41 +14,89 @@ from auth import (
     decode_refresh_token,
     get_current_active_user
 )
+import secrets
+from fastapi import BackgroundTasks
+from fastapi_mail import MessageSchema, FastMail
 
 router = APIRouter(prefix="/auth", tags=["Authentication"])
 settings = get_settings()
 
+async def send_verification_email(email: str, token: str):
+    verify_url = f"{settings.FRONTEND_URL}/verify-email?token={token}"
+
+    message = MessageSchema(
+        subject="Verify your email",
+        recipients=[email],
+        body=f"""
+        Welcome 👋
+
+        Please verify your email by clicking the link below:
+
+        {verify_url}
+
+        This link expires in 24 hours.
+        """,
+        subtype="plain",
+    )
+
+    fm = FastMail(settings.MAIL_CONFIG)
+    await fm.send_message(message)
+
+
 @router.post("/register", response_model=schemas.UserResponse, status_code=status.HTTP_201_CREATED)
-def register(user: schemas.UserCreate, db: Session = Depends(get_db)):
+def register(
+    user: schemas.UserCreate,
+    background_tasks: BackgroundTasks,
+    db: Session = Depends(get_db)
+):
     # Check if email exists
-    db_user = db.query(models.User).filter(models.User.email == user.email).first()
-    if db_user:
+    if db.query(models.User).filter(models.User.email == user.email).first():
         raise HTTPException(status_code=400, detail="Email already registered")
-    
+
     # Check if username exists
-    db_user = db.query(models.User).filter(models.User.username == user.username).first()
-    if db_user:
+    if db.query(models.User).filter(models.User.username == user.username).first():
         raise HTTPException(status_code=400, detail="Username already taken")
-    
-    # Create user
-    hashed_password = get_password_hash(user.password)
+
+    # Create user (NOT verified)
     db_user = models.User(
         email=user.email,
         username=user.username,
-        hashed_password=hashed_password,
+        hashed_password=get_password_hash(user.password),
         full_name=user.full_name,
-        bio=user.bio
+        bio=user.bio,
+        is_verified=False
     )
+
     db.add(db_user)
     db.commit()
     db.refresh(db_user)
-    
+
     # Create default profile
-    db_profile = models.Profile(user_id=db_user.id)
-    db.add(db_profile)
+    db.add(models.Profile(user_id=db_user.id))
     db.commit()
-    
+
+    # Create verification token
+    token = secrets.token_urlsafe(32)
+
+    verification = models.EmailVerificationToken(
+        user_id=db_user.id,
+        token=token,
+        expires_at=datetime.utcnow() + timedelta(hours=24),
+        used=False
+    )
+
+    db.add(verification)
+    db.commit()
+
+    # Send email in background
+    background_tasks.add_task(
+        send_verification_email,
+        db_user.email,
+        token
+    )
+
     return db_user
+
 
 @router.post("/login", response_model=schemas.Token)
 def login(
@@ -206,3 +254,67 @@ def validate_username(username: str, db: Session = Depends(get_db)):
         "available": db_user is None,
         "message": "Username is available" if db_user is None else "Username already taken"
     }
+
+@router.get("/verify-email")
+def verify_email(token: str, db: Session = Depends(get_db)):
+    verification = (
+        db.query(models.EmailVerificationToken)
+        .filter(
+            models.EmailVerificationToken.token == token,
+            models.EmailVerificationToken.used == False,
+            models.EmailVerificationToken.expires_at > datetime.utcnow()
+        )
+        .first()
+    )
+
+    if not verification:
+        raise HTTPException(status_code=400, detail="Invalid or expired token")
+
+    user = db.query(models.User).filter(models.User.id == verification.user_id).first()
+
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    user.is_verified = True
+    user.verified_at = datetime.utcnow()
+    verification.used = True
+
+    db.commit()
+
+    return {"message": "Email verified successfully"}
+
+
+@router.post("/resend-verification")
+def resend_verification_email(
+    background_tasks: BackgroundTasks,
+    current_user: models.User = Depends(get_current_active_user),
+    db: Session = Depends(get_db)
+):
+    if current_user.is_verified:
+        raise HTTPException(status_code=400, detail="Email already verified")
+
+    # Invalidate previous tokens
+    db.query(models.EmailVerificationToken).filter(
+        models.EmailVerificationToken.user_id == current_user.id,
+        models.EmailVerificationToken.used == False
+    ).update({"used": True})
+
+    token = secrets.token_urlsafe(32)
+
+    verification = models.EmailVerificationToken(
+        user_id=current_user.id,
+        token=token,
+        expires_at=datetime.utcnow() + timedelta(hours=24),
+        used=False
+    )
+
+    db.add(verification)
+    db.commit()
+
+    background_tasks.add_task(
+        send_verification_email,
+        current_user.email,
+        token
+    )
+
+    return {"message": "Verification email sent"}
