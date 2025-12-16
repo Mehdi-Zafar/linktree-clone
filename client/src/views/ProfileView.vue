@@ -36,7 +36,7 @@ const { profile, links, buttons, isLoading } = usePublicProfile(username)
           <Skeleton />
         </template>
         <template v-else-if="buttons?.length > 0">
-          <a v-for="button in buttons" :href="'//' + button.url" target="_blank">
+          <a v-for="button in buttons" :href="button.url" target="_blank">
             <div
               class="bg-emerald-500 dark:bg-emerald-600 w-16 h-16 rounded-full flex items-center justify-center cursor-pointer hover:scale-110 duration-250"
             >
