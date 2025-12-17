@@ -10,6 +10,7 @@ import type {
   ResetPasswordResponse,
   ForgotPasswordRequest,
   ForgotPasswordResponse,
+  ResendVerificationResponse,
 } from '@/shared/types'
 
 const BASE_URL = '/auth'
@@ -85,6 +86,11 @@ export const authApi = {
 
   resetPassword: async (resetPasswordRequest: ResetPasswordRequest) => {
     const response = await api.post<ResetPasswordResponse>(`${BASE_URL}/reset-password`, resetPasswordRequest)
+    return response.data
+  },
+
+  resendVerificationEmail: async () => {
+    const response = await api.post<ResendVerificationResponse>(`${BASE_URL}/resend-verification`)
     return response.data
   },
 }

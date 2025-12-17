@@ -12,6 +12,7 @@ import type {
 import { authApi } from '@/api/auth.api'
 import { useRouter } from 'vue-router'
 import { showToast } from '@/shared/utils'
+import { is } from 'zod/locales'
 
 export const useAuthStore = defineStore('auth', () => {
   const queryClient = useQueryClient()
@@ -143,6 +144,16 @@ export const useAuthStore = defineStore('auth', () => {
     },
   })
 
+  const resendVerificationEmailMutation = useMutation({
+    mutationFn: () => authApi.resendVerificationEmail(),
+    onSuccess: () => {
+      showToast('Verification email sent successfully!', 'success')
+    },
+    onError: (error: any) => {
+      showToast(error.response?.data?.detail || 'Failed to resend verification email', 'error')
+    },
+  })
+
   // ============ RETURN ============
   return {
     // State
@@ -166,6 +177,7 @@ export const useAuthStore = defineStore('auth', () => {
     verifyEmail: verifyEmailMutation.mutateAsync,
     forgotPassword: forgotPasswordMutation.mutateAsync,
     resetPassword: resetPasswordMutation.mutateAsync,
+    resendVerificationEmail: resendVerificationEmailMutation.mutateAsync,
 
     // Mutation states
     isLoggingIn: computed(() => loginMutation.isPending.value),
@@ -176,5 +188,7 @@ export const useAuthStore = defineStore('auth', () => {
     forgotPasswordError: computed(() => forgotPasswordMutation.error.value),
     isResettingPassword: computed(() => resetPasswordMutation.isPending.value),
     resetPasswordError: computed(() => resetPasswordMutation.error.value),
+    isResendingVerificationEmail: computed(() => resendVerificationEmailMutation.isPending.value),
+    resendVerificationEmailError: computed(() => resendVerificationEmailMutation.error.value),
   }
 })

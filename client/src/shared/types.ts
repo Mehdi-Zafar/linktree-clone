@@ -46,6 +46,10 @@ export interface ForgotPasswordResponse {
   message: string
 }
 
+export interface ResendVerificationResponse {
+  message: string
+}
+
 // ============ USER TYPES ============
 export interface User {
   id: number
