@@ -2,7 +2,13 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/vue-query'
-import type { LoginCredentials, RegisterData } from '@/shared/types'
+import type {
+  ForgotPasswordRequest,
+  ForgotPasswordResponse,
+  LoginCredentials,
+  RegisterData,
+  ResetPasswordRequest,
+} from '@/shared/types'
 import { authApi } from '@/api/auth.api'
 import { useRouter } from 'vue-router'
 import { showToast } from '@/shared/utils'
@@ -91,27 +97,51 @@ export const useAuthStore = defineStore('auth', () => {
   }
 
   const verifyEmailMutation = useMutation({
-  mutationFn: (token: string) => authApi.verifyEmail(token),
-  onSuccess: () => {
-    // Show success message
-    alert('Email verified successfully!')
-    // Redirect to dashboard
-    router.push('/')
-  },
-  onError: (error: any) => {
-    // Handle specific errors
-    if (error.response?.status === 400) {
-      alert('Invalid or expired verification link')
-    } else if (error.response?.status === 409) {
-      alert('Email already verified')
-    } else {
-      alert('Verification failed. Please try again.')
-    }
-    router.push('/')
-  },
-  retry: false,
-})
+    mutationFn: (token: string) => authApi.verifyEmail(token),
+    onSuccess: () => {
+      // Show success message
+      showToast('Email verified successfully!', 'success')
+      // Redirect to dashboard
+      router.push('/')
+    },
+    onError: (error: any) => {
+      // Handle specific errors
+      if (error.response?.status === 400) {
+        showToast('Invalid or expired verification link', 'error')
+      } else if (error.response?.status === 409) {
+        showToast('Email already verified', 'error')
+      } else {
+        showToast('Verification failed. Please try again.', 'error')
+      }
+      router.push('/')
+    },
+    retry: false,
+  })
 
+  const forgotPasswordMutation = useMutation({
+    mutationFn: (data: ForgotPasswordRequest) => authApi.forgotPassword(data),
+    onSuccess: (response: ForgotPasswordResponse) => {
+      showToast(
+        response?.message ?? 'Password reset email sent! Please check your inbox.',
+        'success',
+      )
+    },
+    onError: (error: any) => {
+      showToast(error.response?.data?.detail || 'Forgot Password failed', 'error')
+    },
+  })
+
+  // reset password
+  const resetPasswordMutation = useMutation({
+    mutationFn: (data: ResetPasswordRequest) => authApi.resetPassword(data),
+    onSuccess: () => {
+      showToast('Password reset successfull!', 'success')
+      router.push('/sign-in')
+    },
+    onError: (error: any) => {
+      showToast(error.response?.data?.detail || 'Reset Password failed', 'error')
+    },
+  })
 
   // ============ RETURN ============
   return {
@@ -134,11 +164,17 @@ export const useAuthStore = defineStore('auth', () => {
     logout,
     refetchUser: userQuery.refetch,
     verifyEmail: verifyEmailMutation.mutateAsync,
+    forgotPassword: forgotPasswordMutation.mutateAsync,
+    resetPassword: resetPasswordMutation.mutateAsync,
 
     // Mutation states
     isLoggingIn: computed(() => loginMutation.isPending.value),
     isRegistering: computed(() => registerMutation.isPending.value),
     loginError: computed(() => loginMutation.error.value),
     registerError: computed(() => registerMutation.error.value),
+    isForgettingPassword: computed(() => forgotPasswordMutation.isPending.value),
+    forgotPasswordError: computed(() => forgotPasswordMutation.error.value),
+    isResettingPassword: computed(() => resetPasswordMutation.isPending.value),
+    resetPasswordError: computed(() => resetPasswordMutation.error.value),
   }
 })

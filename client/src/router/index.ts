@@ -9,6 +9,8 @@ import ProfileView from '@/views/ProfileView.vue'
 import EditProfileView from '@/views/EditProfileView.vue'
 import { useAuthStore } from '@/stores/auth'
 import VerifyEmail from '@/views/VerifyEmail.vue'
+import ForgotPassword from '@/views/ForgotPassword.vue'
+import ResetPassword from '@/views/ResetPassword.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -37,6 +39,16 @@ const router = createRouter({
           path: 'verify-email',
           name: 'verify email',
           component: VerifyEmail,
+        },
+        {
+          path: '/forgot-password',
+          name: 'forgot password',
+          component: ForgotPassword,
+        },
+        {
+          path: '/reset-password',
+          name: 'reset password',
+          component: ResetPassword,
         },
       ],
     },

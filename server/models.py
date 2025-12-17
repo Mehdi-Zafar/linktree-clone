@@ -38,6 +38,7 @@ class User(Base):
     avatar_url = Column(String(500))
     is_active = Column(Boolean, default=True)
     is_verified = Column(Boolean, default=False)
+    last_password_reset_sent_at = Column(DateTime(timezone=True), nullable=True)
     verified_at = Column(DateTime(timezone=True), nullable=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
@@ -116,4 +117,15 @@ class EmailVerificationToken(Base):
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
     # Relationship
+    user = relationship("User")
+
+class EmailPasswordResetToken(Base):
+    __tablename__ = "email_password_reset_tokens"
+
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
+    token = Column(String(255), unique=True, index=True, nullable=False)
+    expires_at = Column(DateTime(timezone=True), nullable=False)
+    used = Column(Boolean, default=False)
+
     user = relationship("User")
