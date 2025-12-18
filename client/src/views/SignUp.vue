@@ -18,7 +18,14 @@ import { useEmailValidation, useUsernameValidation } from '@/composables/useVali
 import LoadingSpinner from '@/components/LoadingSpinner.vue'
 import { useDebounceFn } from '@vueuse/core'
 import { useAuthStore } from '@/stores/auth'
-import { fullNameRegex, numberRegex, passwordRegex, specialCharacterRegex, usernameRegex } from '@/shared/config'
+import {
+  fullNameRegex,
+  numberRegex,
+  passwordRegex,
+  specialCharacterRegex,
+  usernameRegex,
+} from '@/shared/config'
+import { storeToRefs } from 'pinia'
 
 const route = useRoute()
 const usernameFromQuery = ref(route.query.username)
@@ -58,8 +65,6 @@ const emailError = computed(() => {
 
   return null
 })
-
-
 
 // Initialize Regle with validation rules
 const { r$ } = useRegle(
@@ -103,7 +108,9 @@ const { r$ } = useRegle(
   },
   { lazy: true },
 )
-const { register, isRegistering } = useAuthStore()
+const authStore = useAuthStore()
+const { isRegistering } = storeToRefs(authStore)
+const { register } = authStore
 
 const {
   data: emailValidation,
