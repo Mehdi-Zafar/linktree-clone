@@ -26,6 +26,20 @@ class UsernameValidationResponse(BaseModel):
     available: bool
     message: str
 
+class ForgotPasswordRequest(BaseModel):
+    email: str
+
+class ForgotPasswordResponse(BaseModel):
+    message: str
+
+# Request to actually reset
+class ResetPasswordRequest(BaseModel):
+    token: str
+    new_password: str
+
+class ResetPasswordResponse(BaseModel):
+    message: str
+
 # ============ USER SCHEMAS ============
 class UserBase(BaseModel):
     email: EmailStr

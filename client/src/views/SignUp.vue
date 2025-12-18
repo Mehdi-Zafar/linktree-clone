@@ -18,6 +18,14 @@ import { useEmailValidation, useUsernameValidation } from '@/composables/useVali
 import LoadingSpinner from '@/components/LoadingSpinner.vue'
 import { useDebounceFn } from '@vueuse/core'
 import { useAuthStore } from '@/stores/auth'
+import {
+  fullNameRegex,
+  numberRegex,
+  passwordRegex,
+  specialCharacterRegex,
+  usernameRegex,
+} from '@/shared/config'
+import { storeToRefs } from 'pinia'
 
 const route = useRoute()
 const usernameFromQuery = ref(route.query.username)
@@ -57,12 +65,6 @@ const emailError = computed(() => {
 
   return null
 })
-
-const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]).{8,}$/
-const usernameRegex = /^[a-zA-Z][a-zA-Z0-9_.-]*[a-zA-Z0-9]$|^[a-zA-Z]$/
-const fullNameRegex = /^[a-zA-Z ]+$/
-const specialCharacterRegex = /(?=.*[^A-Za-z0-9])/
-const numberRegex = /(?=.*\d)/
 
 // Initialize Regle with validation rules
 const { r$ } = useRegle(
@@ -106,7 +108,9 @@ const { r$ } = useRegle(
   },
   { lazy: true },
 )
-const { register, isRegistering } = useAuthStore()
+const authStore = useAuthStore()
+const { isRegistering } = storeToRefs(authStore)
+const { register } = authStore
 
 const {
   data: emailValidation,

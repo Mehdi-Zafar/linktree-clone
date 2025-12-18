@@ -168,3 +168,10 @@ export const validatePlatformUrl = (platform: string, url: string): boolean => {
 
 export const dummy_avatar =
   'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80'
+
+export const passwordRegex =
+  /^(?=.*[A-Za-z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]).{8,}$/
+export const usernameRegex = /^[a-zA-Z][a-zA-Z0-9_.-]*[a-zA-Z0-9]$|^[a-zA-Z]$/
+export const fullNameRegex = /^[a-zA-Z ]+$/
+export const specialCharacterRegex = /(?=.*[^A-Za-z0-9])/
+export const numberRegex = /(?=.*\d)/

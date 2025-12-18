@@ -4,7 +4,7 @@ import { useLinks } from '@/composables/useLinks'
 import { SOCIAL_PLATFORMS } from '@/shared/config'
 import { type Link, type LinkReorder } from '@/shared/types'
 import { PencilIcon, PlusCircleIcon, TrashIcon } from '@heroicons/vue/24/outline'
-import { watchEffect, computed } from 'vue'
+import { watchEffect, computed, onMounted } from 'vue'
 import { ref } from 'vue'
 import draggableComponent from 'vuedraggable'
 import AddButtonModal from '@/components/AddButtonModal.vue'
@@ -17,6 +17,8 @@ import { useConfirm } from '@/composables/useConfirm'
 import Button from '@/components/Button.vue'
 import { useAuthStore } from '@/stores/auth'
 import Avatar from '@/components/Avatar.vue'
+import { useRouter } from 'vue-router'
+import { showToast } from '@/shared/utils'
 
 const { buttons, links, deleteLink, reorderLinks, isDeleting, isLoading, isReordering } = useLinks()
 const showAddButtonModal = ref(false)
@@ -31,6 +33,14 @@ const authStore = useAuthStore()
 // Create reactive lists for draggable UI
 const userButtons = ref<Link[]>([])
 const userLinks = ref<Link[]>([])
+const router = useRouter()
+
+onMounted(() => {
+  if (authStore.user && !authStore.user.is_verified) {
+    router.push(`/profile/${authStore.user.username}`)
+    showToast('Verify your email to access the edit profile page', 'error')
+  }
+})
 
 // ✅ Watch API data and populate when ready
 watchEffect(() => {

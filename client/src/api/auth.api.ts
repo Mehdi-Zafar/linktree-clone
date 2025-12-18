@@ -6,6 +6,11 @@ import type {
   User,
   EmailValidationResponse,
   UsernameValidationResponse,
+  ResetPasswordRequest,
+  ResetPasswordResponse,
+  ForgotPasswordRequest,
+  ForgotPasswordResponse,
+  ResendVerificationResponse,
 } from '@/shared/types'
 
 const BASE_URL = '/auth'
@@ -53,7 +58,7 @@ export const authApi = {
   // Email validation
   validateEmail: async (email: string): Promise<EmailValidationResponse> => {
     const response = await api.get<EmailValidationResponse>(
-      `${BASE_URL}/validate/email/${encodeURIComponent(email)}`
+      `${BASE_URL}/validate/email/${encodeURIComponent(email)}`,
     )
     return response.data
   },
@@ -61,7 +66,7 @@ export const authApi = {
   // Username validation
   validateUsername: async (username: string): Promise<UsernameValidationResponse> => {
     const response = await api.get<UsernameValidationResponse>(
-      `${BASE_URL}/validate/username/${encodeURIComponent(username)}`
+      `${BASE_URL}/validate/username/${encodeURIComponent(username)}`,
     )
     return response.data
   },
@@ -71,6 +76,21 @@ export const authApi = {
     const response = await api.get<void>(`${BASE_URL}/verify-email`, {
       params: { token },
     })
+    return response.data
+  },
+
+  forgotPassword: async (forgotPasswordRequest: ForgotPasswordRequest) => {
+    const response = await api.post<ForgotPasswordResponse>(`${BASE_URL}/forgot-password`, forgotPasswordRequest)
+    return response.data
+  },
+
+  resetPassword: async (resetPasswordRequest: ResetPasswordRequest) => {
+    const response = await api.post<ResetPasswordResponse>(`${BASE_URL}/reset-password`, resetPasswordRequest)
+    return response.data
+  },
+
+  resendVerificationEmail: async () => {
+    const response = await api.post<ResendVerificationResponse>(`${BASE_URL}/resend-verification`)
     return response.data
   },
 }

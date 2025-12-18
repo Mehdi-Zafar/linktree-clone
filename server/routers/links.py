@@ -38,6 +38,13 @@ def create_link(
     db: Session = Depends(get_db),
     current_user: models.User = Depends(get_current_active_user)
 ):
+    
+    if not current_user.is_verified:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="User is not verified"
+        )
+    
     db_link = models.Link(
         user_id=current_user.id,
         **link.model_dump()

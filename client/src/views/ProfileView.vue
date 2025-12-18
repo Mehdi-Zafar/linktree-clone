@@ -9,8 +9,10 @@ import { usePublicProfile } from '@/composables/useUsers'
 import { computed } from 'vue'
 import Avatar from '@/components/Avatar.vue'
 
-const { isAuthenticated, user } = useAuthStore()
+const { isAuthenticated, user, resendVerificationEmail, isResendingVerificationEmail } =
+  useAuthStore()
 const isCurrentUser = computed(() => isAuthenticated && user?.username === username)
+const isUserVerified = computed(() => user?.is_verified ?? false)
 const route = useRoute()
 const username =
   (Array.isArray(route.params.username)
@@ -25,10 +27,34 @@ const { profile, links, buttons, isLoading } = usePublicProfile(username)
   <div class="relative max-w-xl mx-auto">
     <div class="relative flex flex-col items-center justify-center gap-4 mt-8">
       <!-- <img :src="profile?.avatar_url ?? ''" alt="" class="w-32 h-32 rounded-full" /> -->
-      <Avatar :src="profile?.avatar_url" :name="profile?.full_name" alt="" class="w-32 h-32 rounded-full" initials-class="text-3xl" />
-      <RouterLink v-if="isCurrentUser" to="/profile/edit" class="w-fit"
-        ><Button label="Edit Profile"
-      /></RouterLink>
+      <Avatar
+        :src="profile?.avatar_url"
+        :name="profile?.full_name"
+        alt=""
+        class="w-32 h-32 rounded-full"
+        initials-class="text-3xl"
+      />
+      <template v-if="isCurrentUser">
+        <RouterLink v-if="isUserVerified" to="/profile/edit" class="w-fit"
+          ><Button label="Edit Profile"
+        /></RouterLink>
+        <div
+          v-else
+          class="max-w-lg bg-green-700 py-5 px-4 rounded-lg text-center flex flex-col gap-2 items-center justify-center"
+        >
+          <h4 class="text-base">Verify your email to activate your page</h4>
+          <p class="text-sm">
+            We’ve sent a verification link to {{ user?.email ?? 'your email' }}.
+          </p>
+          <Button
+            label="Resend Email"
+            btnClass="w-fit text-white"
+            outline
+            :onClick="resendVerificationEmail"
+            :loading="isResendingVerificationEmail"
+          />
+        </div>
+      </template>
       <h1 class="text-2xl font-semibold">{{ profile?.full_name }}</h1>
       <p class="text-base">{{ profile?.bio }}</p>
       <div class="flex items-center justify-center gap-4">

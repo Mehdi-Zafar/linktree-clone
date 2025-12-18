@@ -104,6 +104,12 @@ async def upload_avatar(
     db: Session = Depends(get_db),
     current_user: models.User = Depends(get_current_active_user)
 ):
+    
+    if not current_user.is_verified:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="User is not verified"
+        )
     """
     Upload avatar to Supabase Storage and update user's avatar_url
     """
