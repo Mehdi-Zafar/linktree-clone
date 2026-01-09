@@ -130,8 +130,8 @@ def login(
     )
     
     # Set refresh token in HTTP-only cookie
-    cookie_secure = getattr(settings, 'COOKIE_SECURE', False)
-    cookie_samesite = getattr(settings, 'COOKIE_SAMESITE', 'lax')
+    cookie_secure = getattr(settings, 'COOKIE_SECURE', True)
+    cookie_samesite = getattr(settings, 'COOKIE_SAMESITE', 'none')
     cookie_domain = getattr(settings, 'COOKIE_DOMAIN', None)
     
     response.set_cookie(
