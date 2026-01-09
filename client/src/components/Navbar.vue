@@ -100,7 +100,7 @@ const { isAuthenticated, user } = storeToRefs(authStore)
                     >Profile</RouterLink
                   >
                 </MenuItem>
-                <MenuItem v-slot="{ active }">
+                <!-- <MenuItem v-slot="{ active }">
                   <a
                     href="#"
                     :class="[
@@ -109,7 +109,7 @@ const { isAuthenticated, user } = storeToRefs(authStore)
                     ]"
                     >Settings</a
                   >
-                </MenuItem>
+                </MenuItem> -->
                 <MenuItem v-slot="{ active }">
                   <span
                     :class="[

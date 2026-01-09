@@ -196,7 +196,7 @@ const handleDelete = (id: number) => {
             >
               <template #item="{ element: button }">
                 <li
-                  class="flex items-center gap-3 bg-white dark:bg-gray-800 p-3 rounded-lg cursor-default"
+                  class="flex items-center gap-3 bg-white dark:bg-gray-800 shadow p-3 rounded-lg cursor-default"
                 >
                   <!-- Drag handle -->
                   <span
@@ -281,7 +281,7 @@ const handleDelete = (id: number) => {
             >
               <template #item="{ element: link }">
                 <li
-                  class="flex items-center gap-3 bg-white dark:bg-gray-800 p-3 rounded-lg cursor-default"
+                  class="flex items-center gap-3 bg-white dark:bg-gray-800 shadow p-3 rounded-lg cursor-default"
                 >
                   <!-- Drag handle -->
                   <span

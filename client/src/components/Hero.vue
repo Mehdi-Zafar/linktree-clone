@@ -5,17 +5,25 @@ import Input from './Input.vue'
 import heroImg from '@/assets/images/linktree-logo-icon.png'
 import { useRouter } from 'vue-router'
 import { showToast } from '@/shared/utils'
+import { useAuthStore } from '@/stores/auth'
+import { storeToRefs } from 'pinia'
 
 const link = ref('')
 const router = useRouter()
+const authStore = useAuthStore()
+const { isAuthenticated, user } = storeToRefs(authStore)
 
 function navigateToSignUp() {
   if (link.value.trim() === '') {
     showToast('Please enter a username', 'error')
     return
   }
-  if(link.value.length < 6){
+  if (link.value.length < 6) {
     showToast('Username must be at least 6 characters long', 'error')
+    return
+  }
+  if (isAuthenticated.value) {
+    showToast('You are already logged in', 'info')
     return
   }
   router.push({
@@ -39,7 +47,12 @@ function navigateToSignUp() {
           class="w-full flex-1 max-w-sm flex items-center gap-1 py-2 border border-gray-300 dark:border-gray-700 rounded-md pl-3 text-sm"
         >
           <span class="opacity-70">linktree/</span>
-          <Input containerClass="w-full flex-1" inputClass="py-0 px-0 border-none" v-model="link" placeholder="Enter a username"/>
+          <Input
+            containerClass="w-full flex-1"
+            inputClass="py-0 px-0 border-none bg-transparent"
+            v-model="link"
+            placeholder="Enter a username"
+          />
         </div>
         <Button label="Proceed" btnClass="py-2 w-fit" :onClick="navigateToSignUp" />
       </div>
